@@ -42,6 +42,7 @@
     <string name="ExtraIsMeasuring">Measuring</string>
     <string name="ExtraStarted">Started</string>
     <string name="Paused">Paused</string>
+    <string name="TxtTime">Time:</string>
 
     <string name="DetailsStatusRunning">Measuring…</string>
     <string name="DetailsStatusStopped">Measurement paused.</string>

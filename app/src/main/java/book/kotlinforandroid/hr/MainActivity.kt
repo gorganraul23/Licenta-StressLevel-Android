@@ -7,10 +7,8 @@ import android.content.pm.PackageManager
 import android.os.Bundle
 import android.util.Log
 import android.view.View
-import android.widget.TextView
 import android.widget.Toast
 import androidx.core.app.ActivityCompat
-import androidx.core.content.ContextCompat
 import book.kotlinforandroid.hr.connection.ConnectionManager
 import book.kotlinforandroid.hr.connection.ConnectionObserver
 import book.kotlinforandroid.hr.databinding.ActivityMainBinding
@@ -162,10 +160,9 @@ class MainActivity : Activity() {
             isMeasuring = true
             startedOnce = true
             heartRateListener?.startTracker()
-            binding.butStart.background =
-                ContextCompat.getDrawable(this, R.drawable.button_disabled_background)
-            binding.butStop.background =
-                ContextCompat.getDrawable(this, R.drawable.button_background)
+
+            binding.butStart.isEnabled = false
+            binding.butStop.isEnabled = true
             binding.txtStatus.text = getString(R.string.StatusStartedOnce)
         }
     }
@@ -184,10 +181,9 @@ class MainActivity : Activity() {
                 .show()
             isMeasuring = false
             heartRateListener?.stopTracker()
-            binding.butStart.background =
-                ContextCompat.getDrawable(this, R.drawable.button_background)
-            binding.butStop.background =
-                ContextCompat.getDrawable(this, R.drawable.button_disabled_background)
+
+            binding.butStart.isEnabled = true
+            binding.butStop.isEnabled = false
         }
     }
 

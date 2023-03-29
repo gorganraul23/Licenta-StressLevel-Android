@@ -31,20 +31,22 @@ class DetailsActivity : Activity() {
 
         binding.txtValueHRV.text = "0.0"
 
-        //// default values
+        //// get data
         val intent = intent
-        val isMeasuring = intent.getIntExtra(getString(R.string.ExtraIsMeasuring), 0)
-        val startedOnce = intent.getIntExtra(getString(R.string.ExtraStarted), 0)
+        val isMeasuring = intent.getBooleanExtra(getString(R.string.ExtraIsMeasuring), false)
+        val startedOnce = intent.getBooleanExtra(getString(R.string.ExtraStarted), false)
 
-        status = if(startedOnce == 0)
+        ////// check status
+        status = if(!startedOnce)
             HeartRateStatus.HR_STATUS_NOT_STARTED.status
         else{
-            if(isMeasuring == 0)
+            if(!isMeasuring)
                 HeartRateStatus.HR_STATUS_STOPPED.status
             else
                 HeartRateStatus.HR_STATUS_CALCULATING.status
         }
 
+        //// get values
         val hr = intent.getIntExtra(getString(R.string.ExtraHr), 0)
         val ibi = intent.getIntExtra(getString(R.string.ExtraIbi), 0)
         val qIbi = intent.getIntExtra(getString(R.string.ExtraQualityIbi), 1)
@@ -100,7 +102,6 @@ class DetailsActivity : Activity() {
         when (status) {
 //            HeartRateStatus.HR_STATUS_FIND_HR.status -> stringId = R.string.DetailsStatusRunning
 //            HeartRateStatus.HR_STATUS_NONE.status -> {}
-//            HeartRateStatus.HR_STATUS_STOPPED.status -> stringId = R.string.DetailsStatusStopped
             HeartRateStatus.HR_STATUS_STOPPED.status -> stringId = R.string.DetailsStatusStopped
             HeartRateStatus.HR_STATUS_CALCULATING.status -> stringId = R.string.DetailsStatusRunning
             HeartRateStatus.HR_STATUS_NOT_STARTED.status -> stringId = R.string.DetailsStatusNotStarted
