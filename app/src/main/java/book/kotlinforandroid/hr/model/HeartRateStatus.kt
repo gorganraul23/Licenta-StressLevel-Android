@@ -2,6 +2,9 @@ package book.kotlinforandroid.hr.model
 
 enum class HeartRateStatus (val status: Int) {
     HR_STATUS_NONE(0),
+    HR_STATUS_CALCULATING(2),
+    HR_STATUS_STOPPED(3),
+    HR_STATUS_NOT_STARTED(4),
     HR_STATUS_FIND_HR(1),
     HR_STATUS_ATTACHED(-1),
     HR_STATUS_DETECT_MOVE(-2),

@@ -17,17 +17,50 @@
             android:id="@+id/txtStatus"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:text="@string/DetailsStatusNone"
+            android:text="@string/DetailsStatusRunning"
             android:textAlignment="center"
-            android:textSize="12sp"
             android:textColor="@android:color/white"
+            android:textSize="12sp"
             app:layout_constrainedWidth="true"
             app:layout_constraintBottom_toBottomOf="parent"
             app:layout_constraintEnd_toEndOf="@id/guideline_right"
-            app:layout_constraintHorizontal_bias="0.5"
+            app:layout_constraintHorizontal_bias="0.531"
             app:layout_constraintStart_toEndOf="@id/guideline_left"
             app:layout_constraintTop_toTopOf="parent"
-            app:layout_constraintVertical_bias="0.20" />
+            app:layout_constraintVertical_bias="0.123" />
+
+
+        <TextView
+            android:id="@+id/txtTime"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="Time: "
+            android:textAlignment="center"
+            android:textColor="@android:color/white"
+            android:textSize="10sp"
+            android:textStyle="bold"
+            app:layout_constraintBottom_toBottomOf="parent"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintHorizontal_bias="0.462"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toTopOf="parent"
+            app:layout_constraintVertical_bias="0.929" />
+
+        <TextView
+            android:id="@+id/txtTimeValue"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="@string/HeartRateDefaultValue"
+            android:textAlignment="center"
+            android:textColor="@android:color/white"
+            android:textSize="10sp"
+            android:textStyle="bold"
+            app:layout_constraintBottom_toBottomOf="parent"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintHorizontal_bias="0.574"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toTopOf="parent"
+            app:layout_constraintVertical_bias="0.929" />
 
         <TextView
             android:id="@+id/txtHeartRateName"
@@ -35,15 +68,15 @@
             android:layout_height="wrap_content"
             android:text="@string/HeartRate"
             android:textAlignment="center"
+            android:textColor="@android:color/white"
             android:textSize="15sp"
             android:textStyle="bold"
-            android:textColor="@android:color/white"
             app:layout_constraintBottom_toBottomOf="parent"
             app:layout_constraintEnd_toEndOf="parent"
-            app:layout_constraintHorizontal_bias="0.25"
+            app:layout_constraintHorizontal_bias="0.251"
             app:layout_constraintStart_toStartOf="parent"
             app:layout_constraintTop_toTopOf="parent"
-            app:layout_constraintVertical_bias="0.38" />
+            app:layout_constraintVertical_bias="0.281" />
 
         <TextView
             android:id="@+id/txtIbiName"
@@ -51,15 +84,15 @@
             android:layout_height="wrap_content"
             android:text="@string/Ibi"
             android:textAlignment="center"
+            android:textColor="@android:color/white"
             android:textSize="15sp"
             android:textStyle="bold"
-            android:textColor="@android:color/white"
             app:layout_constraintBottom_toBottomOf="parent"
             app:layout_constraintEnd_toEndOf="parent"
-            app:layout_constraintHorizontal_bias="0.44"
+            app:layout_constraintHorizontal_bias="0.442"
             app:layout_constraintStart_toStartOf="parent"
             app:layout_constraintTop_toTopOf="parent"
-            app:layout_constraintVertical_bias="0.58" />
+            app:layout_constraintVertical_bias="0.485" />
 
         <TextView
             android:id="@+id/txtIbiStatusName"
@@ -67,15 +100,15 @@
             android:layout_height="wrap_content"
             android:text="@string/IbiStatus"
             android:textAlignment="center"
+            android:textColor="@android:color/white"
             android:textSize="15sp"
             android:textStyle="bold"
-            android:textColor="@android:color/white"
             app:layout_constraintBottom_toBottomOf="parent"
             app:layout_constraintEnd_toEndOf="parent"
-            app:layout_constraintHorizontal_bias="0.28"
+            app:layout_constraintHorizontal_bias="0.283"
             app:layout_constraintStart_toStartOf="parent"
             app:layout_constraintTop_toTopOf="parent"
-            app:layout_constraintVertical_bias="0.68" />
+            app:layout_constraintVertical_bias="0.587" />
 
         <TextView
             android:id="@+id/txtHeartRateStatusName"
@@ -83,15 +116,47 @@
             android:layout_height="wrap_content"
             android:text="@string/HeartRateStatus"
             android:textAlignment="center"
+            android:textColor="@android:color/white"
             android:textSize="15sp"
             android:textStyle="bold"
-            android:textColor="@android:color/white"
             app:layout_constraintBottom_toBottomOf="parent"
             app:layout_constraintEnd_toEndOf="parent"
-            app:layout_constraintHorizontal_bias="0.27"
+            app:layout_constraintHorizontal_bias="0.275"
             app:layout_constraintStart_toStartOf="parent"
             app:layout_constraintTop_toTopOf="parent"
-            app:layout_constraintVertical_bias="0.48" />
+            app:layout_constraintVertical_bias="0.383" />
+
+
+        <TextView
+            android:id="@+id/txtHRV"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="@string/DetailsHRVLabel"
+            android:textAlignment="center"
+            android:textColor="@android:color/white"
+            android:textSize="15sp"
+            android:textStyle="bold"
+            app:layout_constraintBottom_toBottomOf="parent"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toTopOf="parent"
+            app:layout_constraintVertical_bias="0.747" />
+
+        <TextView
+            android:id="@+id/txtValueHRV"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="@string/HeartRateDefaultValue"
+            android:textAlignment="center"
+            android:textColor="@android:color/white"
+            android:textSize="15sp"
+            android:textStyle="bold"
+            app:layout_constraintBottom_toBottomOf="parent"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintHorizontal_bias="0.509"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toTopOf="parent"
+            app:layout_constraintVertical_bias="0.854" />
 
         <TextView
             android:id="@+id/txtHeartRate"
@@ -99,15 +164,15 @@
             android:layout_height="wrap_content"
             android:text="@string/HeartRateDefaultValue"
             android:textAlignment="center"
+            android:textColor="@android:color/white"
             android:textSize="15sp"
             android:textStyle="bold"
-            android:textColor="@android:color/white"
             app:layout_constraintBottom_toBottomOf="parent"
             app:layout_constraintEnd_toEndOf="parent"
-            app:layout_constraintHorizontal_bias="0.753"
+            app:layout_constraintHorizontal_bias="0.715"
             app:layout_constraintStart_toStartOf="parent"
             app:layout_constraintTop_toTopOf="parent"
-            app:layout_constraintVertical_bias="0.38" />
+            app:layout_constraintVertical_bias="0.281" />
 
         <TextView
             android:id="@+id/txtHeartRateStatus"
@@ -115,15 +180,15 @@
             android:layout_height="wrap_content"
             android:text="@string/HeartRateStatusDefaultValue"
             android:textAlignment="center"
+            android:textColor="@android:color/white"
             android:textSize="15sp"
             android:textStyle="bold"
-            android:textColor="@android:color/white"
             app:layout_constraintBottom_toBottomOf="parent"
             app:layout_constraintEnd_toEndOf="parent"
-            app:layout_constraintHorizontal_bias="0.753"
+            app:layout_constraintHorizontal_bias="0.715"
             app:layout_constraintStart_toStartOf="parent"
             app:layout_constraintTop_toTopOf="parent"
-            app:layout_constraintVertical_bias="0.48" />
+            app:layout_constraintVertical_bias="0.383" />
 
         <TextView
             android:id="@+id/txtIbi"
@@ -131,15 +196,15 @@
             android:layout_height="wrap_content"
             android:text="@string/IbiDefaultValue"
             android:textAlignment="center"
+            android:textColor="@android:color/white"
             android:textSize="15sp"
             android:textStyle="bold"
-            android:textColor="@android:color/white"
             app:layout_constraintBottom_toBottomOf="parent"
             app:layout_constraintEnd_toEndOf="parent"
-            app:layout_constraintHorizontal_bias="0.753"
+            app:layout_constraintHorizontal_bias="0.715"
             app:layout_constraintStart_toStartOf="parent"
             app:layout_constraintTop_toTopOf="parent"
-            app:layout_constraintVertical_bias="0.58" />
+            app:layout_constraintVertical_bias="0.485" />
 
         <TextView
             android:id="@+id/txtIbiStatus"
@@ -147,15 +212,15 @@
             android:layout_height="wrap_content"
             android:text="@string/IbiStatusDefaultValue"
             android:textAlignment="center"
+            android:textColor="@android:color/white"
             android:textSize="15sp"
             android:textStyle="bold"
-            android:textColor="@android:color/white"
             app:layout_constraintBottom_toBottomOf="parent"
             app:layout_constraintEnd_toEndOf="parent"
-            app:layout_constraintHorizontal_bias="0.753"
+            app:layout_constraintHorizontal_bias="0.715"
             app:layout_constraintStart_toStartOf="parent"
             app:layout_constraintTop_toTopOf="parent"
-            app:layout_constraintVertical_bias="0.68" />
+            app:layout_constraintVertical_bias="0.587" />
 
         <androidx.constraintlayout.widget.Guideline
             android:id="@+id/guideline_right"

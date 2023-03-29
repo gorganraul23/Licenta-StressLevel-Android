@@ -1,10 +1,6 @@
 <resources>
     <string name="app_name">HR</string>
 
-    <string name="StatusCalculating">Calculating…</string>
-    <string name="StatusDeviceMoving">Device is moving.</string>
-    <string name="StatusLowSignal">Low signal quality.</string>
-    <string name="StatusCompleted">Measurement completed.</string>
     <string name="StartLabel">Start</string>
     <string name="StopLabel">Stop</string>
     <string name="HeartRate">Heart Rate</string>
@@ -15,6 +11,7 @@
     <string name="TxtPercent">%</string>
 
     <string name="StatusDefaultValue">Press Start to initiate measurement. Press stop to pause it.</string>
+    <string name="StatusStartedOnce">Press Start to resume measurement. Press stop to pause it.</string>
     <string name="HeartRateDefaultValue">0</string>
     <string name="HeartRateStatusDefaultValue">0</string>
     <string name="IbiStatusDefaultValue">1</string>
@@ -41,8 +38,14 @@
     <string name="ExtraHrStatus">HrStatus</string>
     <string name="ExtraIbi">Ibi</string>
     <string name="ExtraQualityIbi">QualityIbi</string>
+    <string name="DetailsHRVLabel">Actual HRV</string>
+    <string name="ExtraIsMeasuring">Measuring</string>
+    <string name="ExtraStarted">Started</string>
+    <string name="Paused">Paused</string>
 
-    <string name="DetailsStatusNone">Initial heart rate measuring state.</string>
+    <string name="DetailsStatusRunning">Measuring…</string>
+    <string name="DetailsStatusStopped">Measurement paused.</string>
+    <string name="DetailsStatusNotStarted">Measurement not started.</string>
     <string name="DetailsStatusFindHr">Successful heart rate measurement.</string>
     <string name="DetailsStatusAttached">Wearable is attached.</string>
     <string name="DetailsStatusMoveDetection">Wearable move detection.</string>

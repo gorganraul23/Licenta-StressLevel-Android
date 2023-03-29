@@ -33,7 +33,7 @@
             android:id="@+id/butStop"
             android:layout_width="100dp"
             android:layout_height="26dp"
-            android:background="@drawable/button_background"
+            android:background="@drawable/button_disabled_background"
             android:onClick="stopMeasurement"
             android:text="@string/StopLabel"
             android:textColor="#ffffff"

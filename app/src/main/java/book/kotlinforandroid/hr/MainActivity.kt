@@ -7,8 +7,10 @@ import android.content.pm.PackageManager
 import android.os.Bundle
 import android.util.Log
 import android.view.View
+import android.widget.TextView
 import android.widget.Toast
 import androidx.core.app.ActivityCompat
+import androidx.core.content.ContextCompat
 import book.kotlinforandroid.hr.connection.ConnectionManager
 import book.kotlinforandroid.hr.connection.ConnectionObserver
 import book.kotlinforandroid.hr.databinding.ActivityMainBinding
@@ -36,6 +38,8 @@ class MainActivity : Activity() {
     private var connectionManager: ConnectionManager? = null
     private var heartRateListener: HeartRateListener? = null
     private var connected = false
+    private var isMeasuring = false
+    private var startedOnce = false
     private var heartRateDataLast = HeartRateData()
 
 
@@ -101,11 +105,10 @@ class MainActivity : Activity() {
             connected = true
 
             /// setting listener and starting tracker
-
             TrackerDataNotifier.getInstance().addObserver(trackerDataObserver)
             heartRateListener = HeartRateListener()
             connectionManager?.initHeartRate(heartRateListener!!)
-            heartRateListener!!.startTracker()
+            //heartRateListener!!.startTracker()
         }
 
         override fun onError(e: HealthTrackerException) {
@@ -145,17 +148,47 @@ class MainActivity : Activity() {
     }
 
     //// start button
-    fun startMeasurement(view: View?) {
-        Toast.makeText(applicationContext, getString(R.string.MeasureStart), Toast.LENGTH_LONG)
-            .show()
-        heartRateListener?.startTracker()
+    fun startMeasurement(view: View) {
+        if (isMeasuring)
+            Toast.makeText(
+                applicationContext,
+                getString(R.string.AlreadyStarted),
+                Toast.LENGTH_LONG
+            )
+                .show()
+        else {
+            Toast.makeText(applicationContext, getString(R.string.MeasureStart), Toast.LENGTH_LONG)
+                .show()
+            isMeasuring = true
+            startedOnce = true
+            heartRateListener?.startTracker()
+            binding.butStart.background =
+                ContextCompat.getDrawable(this, R.drawable.button_disabled_background)
+            binding.butStop.background =
+                ContextCompat.getDrawable(this, R.drawable.button_background)
+            binding.txtStatus.text = getString(R.string.StatusStartedOnce)
+        }
     }
 
     //// stop button
     fun stopMeasurement(view: View) {
-        Toast.makeText(applicationContext, getString(R.string.MeasureStop), Toast.LENGTH_LONG)
-            .show()
-        heartRateListener?.stopTracker()
+        if (!isMeasuring)
+            Toast.makeText(
+                applicationContext,
+                getString(R.string.AlreadyStopped),
+                Toast.LENGTH_LONG
+            )
+                .show()
+        else {
+            Toast.makeText(applicationContext, getString(R.string.MeasureStop), Toast.LENGTH_LONG)
+                .show()
+            isMeasuring = false
+            heartRateListener?.stopTracker()
+            binding.butStart.background =
+                ContextCompat.getDrawable(this, R.drawable.button_background)
+            binding.butStop.background =
+                ContextCompat.getDrawable(this, R.drawable.button_disabled_background)
+        }
     }
 
     //// click on details
@@ -168,6 +201,8 @@ class MainActivity : Activity() {
         intent.putExtra(getString(R.string.ExtraHrStatus), 0)
         intent.putExtra(getString(R.string.ExtraIbi), 0)
         intent.putExtra(getString(R.string.ExtraQualityIbi), 1)
+        intent.putExtra(getString(R.string.ExtraIsMeasuring), isMeasuring)
+        intent.putExtra(getString(R.string.ExtraStarted), startedOnce)
         startActivity(intent)
     }
 
