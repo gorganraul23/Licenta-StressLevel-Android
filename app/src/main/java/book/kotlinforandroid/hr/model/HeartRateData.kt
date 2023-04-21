@@ -1,7 +1,7 @@
 package book.kotlinforandroid.hr.model
 
 class HeartRateData(
-    var status: Int = HeartRateStatus.HR_STATUS_NONE.status,
+    var hrStatus: Int = HeartRateStatus.HR_STATUS_NONE.status,
     var hr: Int = 0,
     var ibi: Int = 0,
     var qIbi: Int = 1

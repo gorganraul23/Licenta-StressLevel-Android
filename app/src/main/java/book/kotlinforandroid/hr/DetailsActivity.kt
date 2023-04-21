@@ -11,6 +11,11 @@ import book.kotlinforandroid.hr.model.HeartRateData
 import book.kotlinforandroid.hr.model.HeartRateStatus
 import book.kotlinforandroid.hr.tracker.TrackerDataNotifier
 import book.kotlinforandroid.hr.tracker.TrackerDataObserver
+import retrofit2.Call
+import retrofit2.Callback
+import retrofit2.Response
+import retrofit2.Retrofit
+import retrofit2.converter.gson.GsonConverterFactory
 import kotlin.Int
 import kotlin.math.sqrt
 
@@ -22,6 +27,14 @@ class DetailsActivity : Activity() {
     private val valuesIBI = listOf<Int>().toMutableList()
     private var time = 0
     private var status = 0
+
+
+    val retrofit = Retrofit.Builder()
+        .baseUrl("http://192.168.1.5:8000/")
+        .addConverterFactory(GsonConverterFactory.create())
+        .build()
+    val apiService = retrofit.create(ApiService::class.java)
+
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -61,7 +74,7 @@ class DetailsActivity : Activity() {
     private val trackerDataObserver: TrackerDataObserver = object : TrackerDataObserver {
         override fun onHeartRateTrackerDataChanged(heartRateData: HeartRateData) {
             runOnUiThread {
-                updateValuesHRV(heartRateData.ibi, heartRateData.qIbi, heartRateData.status)
+                updateValuesHRV(heartRateData.ibi, heartRateData.qIbi, heartRateData.hrStatus)
                 updateUi(heartRateData)
                 updateHRV()
             }
@@ -76,15 +89,26 @@ class DetailsActivity : Activity() {
     }
 
     private fun updateUi(hrData: HeartRateData) {
-        binding.txtHeartRateStatus.text = hrData.status.toString()
-        setStatus(hrData.status)
-        if (hrData.status == HeartRateStatus.HR_STATUS_FIND_HR.status || hrData.status == HeartRateStatus.HR_STATUS_CALCULATING.status) {
+        binding.txtHeartRateStatus.text = hrData.hrStatus.toString()
+        setStatus(hrData.hrStatus)
+        if (hrData.hrStatus == HeartRateStatus.HR_STATUS_FIND_HR.status || hrData.hrStatus == HeartRateStatus.HR_STATUS_CALCULATING.status) {
             binding.txtHeartRate.text = hrData.hr.toString()
             binding.txtHeartRateStatus.setTextColor(Color.WHITE)
             binding.txtIbi.text = hrData.ibi.toString()
             binding.txtIbiStatus.text = hrData.qIbi.toString()
             binding.txtIbiStatus.setTextColor(if (hrData.qIbi == 0) Color.WHITE else Color.RED)
-            Log.d(APP_TAG, "HR : " + hrData.hr.toString() + " HR_IBI : " + hrData.ibi.toString() + "(" + hrData.qIbi.toString() + ") ")
+            Log.d(APP_TAG, "HR: " + hrData.hr.toString() + " HR_IBI: " + hrData.ibi.toString() + " (" + hrData.qIbi.toString() + ") ")
+
+            println("data: $hrData");
+            apiService.sendSensorData(hrData).enqueue(object : Callback<Void> {
+                override fun onResponse(call: Call<Void>, response: Response<Void>) {
+                    println("Response: " + response.message())
+                }
+                override fun onFailure(call: Call<Void>, t: Throwable) {
+                    println("Error: ${t.message}")
+                }
+            })
+
         }
         else {
             binding.txtHeartRate.text = getString(R.string.HeartRateDefaultValue)

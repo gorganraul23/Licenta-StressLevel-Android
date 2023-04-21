@@ -65,9 +65,9 @@ class MainActivity : Activity() {
         override fun onHeartRateTrackerDataChanged(heartRateData: HeartRateData) {
             runOnUiThread {
                 heartRateDataLast = heartRateData
-                Log.i(APP_TAG, "HR Status: " + heartRateData.status)
+                Log.i(APP_TAG, "HR Status: " + heartRateData.hrStatus)
 
-                if (heartRateData.status == HeartRateStatus.HR_STATUS_FIND_HR.status) {
+                if (heartRateData.hrStatus == HeartRateStatus.HR_STATUS_FIND_HR.status) {
                     binding.txtHeartRate.text = String.valueOf(heartRateData.hr)
                     Log.i(APP_TAG, "HR: " + heartRateData.hr)
                 } else {

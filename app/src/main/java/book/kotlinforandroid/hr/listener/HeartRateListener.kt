@@ -43,7 +43,7 @@ class HeartRateListener : BaseListener() {
     fun readValuesFromDataPoint(dataPoint: DataPoint) {
         val hrData = HeartRateData()
 
-        hrData.status = dataPoint.getValue(ValueKey.HeartRateSet.STATUS)
+        hrData.hrStatus = dataPoint.getValue(ValueKey.HeartRateSet.STATUS)
         hrData.hr = dataPoint.getValue(ValueKey.HeartRateSet.HEART_RATE)
 
         val hrIbi = dataPoint.getValue(ValueKey.HeartRateSet.HEART_RATE_IBI)
