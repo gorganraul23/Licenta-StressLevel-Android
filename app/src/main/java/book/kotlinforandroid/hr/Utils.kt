@@ -1,0 +1,34 @@
+package book.kotlinforandroid.hr
+
+import kotlin.math.sqrt
+
+object Utils {
+
+    private val ibiList = mutableListOf<Int>()
+
+    fun calculateHRV(): Double {
+        val nnDifferences = mutableListOf<Double>()
+        if (ibiList.size >= 3) {
+            for (i in 1 until ibiList.size) {
+                nnDifferences.add((ibiList[i] - ibiList[i - 1]).toDouble())
+            }
+            val sumOfSquares = nnDifferences.sumOf { it * it }
+
+            return sqrt(sumOfSquares / (nnDifferences.size - 1))
+        }
+        return 0.0
+    }
+
+    fun getIbiList(): List<Int> {
+        return ibiList.toList()
+    }
+
+    fun addIbi(ibi: Int) {
+        ibiList.add(ibi)
+    }
+
+    fun clearList(){
+        ibiList.clear();
+    }
+
+}

@@ -14,24 +14,25 @@
 
         <Button
             android:id="@+id/butStart"
-            android:layout_width="100dp"
+            android:layout_width="60dp"
             android:layout_height="26dp"
             android:background="@drawable/button_background"
             android:onClick="startMeasurement"
             android:text="@string/StartLabel"
+            android:textAlignment="center"
             android:textColor="#ffffff"
             android:textSize="12sp"
             app:layout_constraintBottom_toBottomOf="parent"
             app:layout_constraintEnd_toEndOf="parent"
-            app:layout_constraintHorizontal_bias="0.503"
+            app:layout_constraintHorizontal_bias="0.293"
             app:layout_constraintStart_toStartOf="parent"
             app:layout_constraintTop_toTopOf="parent"
-            app:layout_constraintVertical_bias="0.776"
+            app:layout_constraintVertical_bias="0.721"
             tools:ignore="TextContrastCheck,TouchTargetSizeCheck" />
 
         <Button
             android:id="@+id/butStop"
-            android:layout_width="100dp"
+            android:layout_width="60dp"
             android:layout_height="26dp"
             android:background="@drawable/button_background"
             android:enabled="false"
@@ -41,10 +42,29 @@
             android:textSize="12sp"
             app:layout_constraintBottom_toBottomOf="parent"
             app:layout_constraintEnd_toEndOf="parent"
-            app:layout_constraintHorizontal_bias="0.503"
+            app:layout_constraintHorizontal_bias="0.736"
             app:layout_constraintStart_toStartOf="parent"
             app:layout_constraintTop_toTopOf="parent"
-            app:layout_constraintVertical_bias="0.945"
+            app:layout_constraintVertical_bias="0.721"
+            tools:ignore="TextContrastCheck,TouchTargetSizeCheck" />
+
+        <Button
+            android:id="@+id/butReset"
+            android:layout_width="60dp"
+            android:layout_height="20dp"
+            android:background="@drawable/reset_button_background"
+            android:onClick="resetMeasurement"
+            android:enabled="false"
+            android:text="@string/ResetLabel"
+            android:textAlignment="center"
+            android:textColor="#ffffff"
+            android:textSize="11sp"
+            app:layout_constraintBottom_toBottomOf="parent"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintHorizontal_bias="0.497"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toTopOf="parent"
+            app:layout_constraintVertical_bias="0.86"
             tools:ignore="TextContrastCheck,TouchTargetSizeCheck" />
 
         <TextView
@@ -68,7 +88,7 @@
             android:id="@+id/txtHeartRateName"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:layout_marginStart="40dp"
+            android:layout_marginStart="4dp"
             android:text="@string/HeartRate"
             android:textAlignment="center"
             android:textColor="@android:color/white"
@@ -76,30 +96,63 @@
             app:layout_constraintBottom_toBottomOf="parent"
             app:layout_constraintStart_toStartOf="@id/guideline_left"
             app:layout_constraintTop_toTopOf="parent"
-            app:layout_constraintVertical_bias="0.32" />
+            app:layout_constraintVertical_bias="0.323" />
 
         <TextView
             android:id="@+id/txtHeartRate"
-            android:layout_width="54dp"
-            android:layout_height="48dp"
-            android:layout_marginStart="40dp"
+            android:layout_width="55dp"
+            android:layout_height="23dp"
+            android:layout_marginStart="4dp"
             android:width="48dp"
             android:onClick="goToDetails"
             android:text="@string/HeartRateDefaultValue"
             android:textAlignment="center"
             android:textColor="@android:color/white"
-            android:textSize="36sp"
+            android:textSize="17sp"
             android:textStyle="bold"
             app:layout_constraintBottom_toBottomOf="parent"
             app:layout_constraintStart_toStartOf="@id/guideline_left"
             app:layout_constraintTop_toTopOf="parent"
-            app:layout_constraintVertical_bias="0.469" />
+            app:layout_constraintVertical_bias="0.416"
+            tools:ignore="TouchTargetSizeCheck" />
+
+        <TextView
+            android:id="@+id/txtHRVName"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginStart="88dp"
+            android:text="@string/HRV"
+            android:textAlignment="center"
+            android:textColor="@android:color/white"
+            android:textSize="12sp"
+            app:layout_constraintBottom_toBottomOf="parent"
+            app:layout_constraintStart_toStartOf="@id/guideline_left"
+            app:layout_constraintTop_toTopOf="parent"
+            app:layout_constraintVertical_bias="0.323" />
+
+        <TextView
+            android:id="@+id/txtHRV"
+            android:layout_width="68dp"
+            android:layout_height="23dp"
+            android:layout_marginStart="72dp"
+            android:width="48dp"
+            android:onClick="goToDetails"
+            android:text="@string/HRVDefaultValue"
+            android:textAlignment="center"
+            android:textColor="@android:color/white"
+            android:textSize="17sp"
+            android:textStyle="bold"
+            app:layout_constraintBottom_toBottomOf="parent"
+            app:layout_constraintStart_toStartOf="@id/guideline_left"
+            app:layout_constraintTop_toTopOf="parent"
+            app:layout_constraintVertical_bias="0.416"
+            tools:ignore="TouchTargetSizeCheck"/>
 
         <TextView
             android:id="@+id/txtHeartRateDetails"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:layout_marginStart="40dp"
+            android:layout_marginStart="44dp"
             android:onClick="goToDetails"
             android:text="@string/Details"
             android:textAlignment="center"
@@ -108,7 +161,39 @@
             app:layout_constraintBottom_toBottomOf="parent"
             app:layout_constraintStart_toStartOf="@id/guideline_left"
             app:layout_constraintTop_toTopOf="parent"
-            app:layout_constraintVertical_bias="0.628"
+            app:layout_constraintVertical_bias="0.552"
+            tools:ignore="TouchTargetSizeCheck" />
+
+        <TextView
+            android:id="@+id/txtTimeMain"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginStart="32dp"
+            android:text="@string/TxtTime"
+            android:textAlignment="center"
+            android:textColor="@android:color/white"
+            android:textSize="12sp"
+            app:layout_constraintBottom_toBottomOf="parent"
+            app:layout_constraintStart_toStartOf="@id/guideline_left"
+            app:layout_constraintTop_toTopOf="parent"
+            app:layout_constraintVertical_bias="0.957" />
+
+        <TextView
+            android:id="@+id/txtTimeMainValue"
+            android:layout_width="32dp"
+            android:layout_height="18dp"
+            android:layout_marginStart="68dp"
+            android:width="48dp"
+            android:onClick="goToDetails"
+            android:text="@string/TimeDefaultValue"
+            android:textAlignment="center"
+            android:textColor="@android:color/white"
+            android:textSize="12sp"
+            android:textStyle="bold"
+            app:layout_constraintBottom_toBottomOf="parent"
+            app:layout_constraintStart_toStartOf="@id/guideline_left"
+            app:layout_constraintTop_toTopOf="parent"
+            app:layout_constraintVertical_bias="0.966"
             tools:ignore="TouchTargetSizeCheck" />
 
         <androidx.constraintlayout.widget.Guideline

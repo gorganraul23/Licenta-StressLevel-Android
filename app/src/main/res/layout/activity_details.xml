@@ -29,39 +29,6 @@
             app:layout_constraintTop_toTopOf="parent"
             app:layout_constraintVertical_bias="0.123" />
 
-
-        <TextView
-            android:id="@+id/txtTime"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:text="@string/TxtTime"
-            android:textAlignment="center"
-            android:textColor="@android:color/white"
-            android:textSize="11sp"
-            android:textStyle="bold"
-            app:layout_constraintBottom_toBottomOf="parent"
-            app:layout_constraintEnd_toEndOf="parent"
-            app:layout_constraintHorizontal_bias="0.462"
-            app:layout_constraintStart_toStartOf="parent"
-            app:layout_constraintTop_toTopOf="parent"
-            app:layout_constraintVertical_bias="0.929" />
-
-        <TextView
-            android:id="@+id/txtTimeValue"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:text="@string/HeartRateDefaultValue"
-            android:textAlignment="center"
-            android:textColor="@android:color/white"
-            android:textSize="11sp"
-            android:textStyle="bold"
-            app:layout_constraintBottom_toBottomOf="parent"
-            app:layout_constraintEnd_toEndOf="parent"
-            app:layout_constraintHorizontal_bias="0.574"
-            app:layout_constraintStart_toStartOf="parent"
-            app:layout_constraintTop_toTopOf="parent"
-            app:layout_constraintVertical_bias="0.929" />
-
         <TextView
             android:id="@+id/txtHeartRateName"
             android:layout_width="wrap_content"
@@ -146,7 +113,7 @@
             android:id="@+id/txtValueHRV"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:text="@string/HeartRateDefaultValue"
+            android:text="@string/HRVDefaultValue"
             android:textAlignment="center"
             android:textColor="@android:color/white"
             android:textSize="15sp"

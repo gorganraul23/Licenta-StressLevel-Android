@@ -2,7 +2,6 @@ package book.kotlinforandroid.hr
 
 import android.app.Activity
 import android.graphics.Color
-import android.os.Build.VERSION_CODES.N
 import android.os.Bundle
 import android.util.Log
 import android.widget.Toast
@@ -11,30 +10,16 @@ import book.kotlinforandroid.hr.model.HeartRateData
 import book.kotlinforandroid.hr.model.HeartRateStatus
 import book.kotlinforandroid.hr.tracker.TrackerDataNotifier
 import book.kotlinforandroid.hr.tracker.TrackerDataObserver
-import retrofit2.Call
-import retrofit2.Callback
-import retrofit2.Response
-import retrofit2.Retrofit
-import retrofit2.converter.gson.GsonConverterFactory
-import kotlin.Int
-import kotlin.math.sqrt
 
 class DetailsActivity : Activity() {
 
     private val APP_TAG = "DetailsActivity"
     private lateinit var binding: ActivityDetailsBinding
 
-    private val valuesIBI = listOf<Int>().toMutableList()
-    private var time = 0
     private var status = 0
-
-
-    val retrofit = Retrofit.Builder()
-        .baseUrl("http://192.168.1.5:8000/")
-        .addConverterFactory(GsonConverterFactory.create())
-        .build()
-    val apiService = retrofit.create(ApiService::class.java)
-
+    private var heartRateDataLast = HeartRateData()
+    private var hrvLast = 0.0
+    private var resetSignal = false
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -42,18 +27,19 @@ class DetailsActivity : Activity() {
         binding = ActivityDetailsBinding.inflate(layoutInflater)
         setContentView(binding.root)
 
-        binding.txtValueHRV.text = "0.0"
+        binding.txtValueHRV.text = getString(R.string.HRVDefaultValue)
 
         //// get data
         val intent = intent
         val isMeasuring = intent.getBooleanExtra(getString(R.string.ExtraIsMeasuring), false)
         val startedOnce = intent.getBooleanExtra(getString(R.string.ExtraStarted), false)
+        resetSignal = intent.getBooleanExtra(getString(R.string.ExtraReset), false)
 
-        ////// check status
-        status = if(!startedOnce)
+        ////// set status
+        status = if (!startedOnce || resetSignal)
             HeartRateStatus.HR_STATUS_NOT_STARTED.status
-        else{
-            if(!isMeasuring)
+        else {
+            if (!isMeasuring)
                 HeartRateStatus.HR_STATUS_STOPPED.status
             else
                 HeartRateStatus.HR_STATUS_CALCULATING.status
@@ -65,7 +51,9 @@ class DetailsActivity : Activity() {
         val qIbi = intent.getIntExtra(getString(R.string.ExtraQualityIbi), 1)
 
         val hrData = HeartRateData(status, hr, ibi, qIbi)
+        heartRateDataLast = HeartRateData(status, hr, ibi, qIbi)
         updateUi(hrData)
+        updateHRV()
 
         TrackerDataNotifier.getInstance().addObserver(trackerDataObserver)
     }
@@ -74,7 +62,7 @@ class DetailsActivity : Activity() {
     private val trackerDataObserver: TrackerDataObserver = object : TrackerDataObserver {
         override fun onHeartRateTrackerDataChanged(heartRateData: HeartRateData) {
             runOnUiThread {
-                updateValuesHRV(heartRateData.ibi, heartRateData.qIbi, heartRateData.hrStatus)
+                updateIbiList(heartRateData.ibi, heartRateData.qIbi, heartRateData.hrStatus)
                 updateUi(heartRateData)
                 updateHRV()
             }
@@ -88,6 +76,19 @@ class DetailsActivity : Activity() {
         }
     }
 
+    fun updateIbiList(ibiValue: Int, ibiQualityStatus: Int, hrStatus: Int) {
+        if (hrStatus == 1 && ibiQualityStatus == 0 && ibiValue != 0) {
+            Utils.addIbi(ibiValue)
+        }
+    }
+
+    fun updateHRV() {
+        val rmssd = Utils.calculateHRV()
+        hrvLast = rmssd
+        val formattedNumber = String.format("%.3f", rmssd)
+        binding.txtValueHRV.text = formattedNumber
+    }
+
     private fun updateUi(hrData: HeartRateData) {
         binding.txtHeartRateStatus.text = hrData.hrStatus.toString()
         setStatus(hrData.hrStatus)
@@ -97,25 +98,24 @@ class DetailsActivity : Activity() {
             binding.txtIbi.text = hrData.ibi.toString()
             binding.txtIbiStatus.text = hrData.qIbi.toString()
             binding.txtIbiStatus.setTextColor(if (hrData.qIbi == 0) Color.WHITE else Color.RED)
-            Log.d(APP_TAG, "HR: " + hrData.hr.toString() + " HR_IBI: " + hrData.ibi.toString() + " (" + hrData.qIbi.toString() + ") ")
-
-            println("data: $hrData");
-            apiService.sendSensorData(hrData).enqueue(object : Callback<Void> {
-                override fun onResponse(call: Call<Void>, response: Response<Void>) {
-                    println("Response: " + response.message())
-                }
-                override fun onFailure(call: Call<Void>, t: Throwable) {
-                    println("Error: ${t.message}")
-                }
-            })
-
-        }
-        else {
+            Log.d(
+                APP_TAG,
+                "HR: " + hrData.hr.toString() + " HR_IBI: " + hrData.ibi.toString() + " (" + hrData.qIbi.toString() + ") "
+            )
+        } else if (!resetSignal) {
+            binding.txtHeartRate.text = heartRateDataLast.hr.toString()
+            binding.txtHeartRateStatus.setTextColor(Color.RED)
+            binding.txtIbi.text = heartRateDataLast.ibi.toString()
+            binding.txtIbiStatus.text = getString(R.string.IbiStatusDefaultValue)
+            binding.txtIbiStatus.setTextColor(Color.RED)
+            binding.txtValueHRV.text = hrvLast.toString()
+        } else {
             binding.txtHeartRate.text = getString(R.string.HeartRateDefaultValue)
             binding.txtHeartRateStatus.setTextColor(Color.RED)
             binding.txtIbi.text = getString(R.string.IbiDefaultValue)
             binding.txtIbiStatus.text = getString(R.string.IbiStatusDefaultValue)
             binding.txtIbiStatus.setTextColor(Color.RED)
+            binding.txtValueHRV.text = hrvLast.toString()
         }
     }
 
@@ -128,7 +128,8 @@ class DetailsActivity : Activity() {
 //            HeartRateStatus.HR_STATUS_NONE.status -> {}
             HeartRateStatus.HR_STATUS_STOPPED.status -> stringId = R.string.DetailsStatusStopped
             HeartRateStatus.HR_STATUS_CALCULATING.status -> stringId = R.string.DetailsStatusRunning
-            HeartRateStatus.HR_STATUS_NOT_STARTED.status -> stringId = R.string.DetailsStatusNotStarted
+            HeartRateStatus.HR_STATUS_NOT_STARTED.status -> stringId =
+                R.string.DetailsStatusNotStarted
             HeartRateStatus.HR_STATUS_ATTACHED.status -> stringId = R.string.DetailsStatusAttached
             HeartRateStatus.HR_STATUS_DETECT_MOVE.status -> stringId =
                 R.string.DetailsStatusMoveDetection
@@ -143,30 +144,9 @@ class DetailsActivity : Activity() {
         binding.txtStatus.text = getString(stringId)
     }
 
-    fun updateValuesHRV(ibiValue: Int, ibiQualityStatus: Int, hrStatus: Int) {
-        if (hrStatus == 1 && ibiQualityStatus == 0 && ibiValue != 0) {
-            valuesIBI.add(ibiValue)
-        }
-        time++
-        binding.txtTimeValue.text = time.toString()
-    }
-
-    fun updateHRV() {
-        val nnDifferences = mutableListOf<Double>()
-        if (valuesIBI.size >= 3) {
-            for (i in 1 until valuesIBI.size) {
-                nnDifferences.add((valuesIBI[i] - valuesIBI[i - 1]).toDouble())
-            }
-            val sumOfSquares = nnDifferences.sumOf { it * it }
-            val rmssd = sqrt(sumOfSquares / (nnDifferences.size - 1))
-
-            val formattedNumber = String.format("%.3f", rmssd)
-            binding.txtValueHRV.text = formattedNumber
-        }
-    }
-
     override fun onDestroy() {
         super.onDestroy()
         TrackerDataNotifier.getInstance().removeObserver(trackerDataObserver)
     }
+
 }

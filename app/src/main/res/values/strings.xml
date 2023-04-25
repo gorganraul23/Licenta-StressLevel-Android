@@ -3,8 +3,10 @@
 
     <string name="StartLabel">Start</string>
     <string name="StopLabel">Stop</string>
+    <string name="ResetLabel">Reset</string>
     <string name="HeartRate">Heart Rate</string>
     <string name="HeartRateStatus">HR Status</string>
+    <string name="HRV">HRV</string>
     <string name="Ibi">IBI</string>
     <string name="IbiStatus">IBI Status</string>
     <string name="Details">details >></string>
@@ -13,14 +15,15 @@
     <string name="StatusDefaultValue">Press Start to initiate measurement. Press stop to pause it.</string>
     <string name="StatusStartedOnce">Press Start to resume measurement. Press stop to pause it.</string>
     <string name="HeartRateDefaultValue">0</string>
+    <string name="HRVDefaultValue">0.00</string>
+    <string name="TimeDefaultValue">00:00</string>
     <string name="HeartRateStatusDefaultValue">0</string>
     <string name="IbiStatusDefaultValue">1</string>
     <string name="IbiDefaultValue">0</string>
 
     <string name="MeasureStart">Measure started</string>
-    <string name="AlreadyStarted">Already started</string>
-    <string name="MeasureStop">Measure stopped</string>
-    <string name="AlreadyStopped">Already stopped</string>
+    <string name="MeasureStop">Measure paused</string>
+    <string name="TimerReset">Session ended</string>
 
     <string name="ConnectedToHs">Connected to Health Tracking Service.</string>
     <string name="ConnectionError">Could not connect to Health Tracking Service. Check error log.</string>
@@ -41,6 +44,7 @@
     <string name="DetailsHRVLabel">Actual HRV</string>
     <string name="ExtraIsMeasuring">Measuring</string>
     <string name="ExtraStarted">Started</string>
+    <string name="ExtraReset">ResetSignal</string>
     <string name="Paused">Paused</string>
     <string name="TxtTime">Time:</string>
 
