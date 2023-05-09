@@ -78,7 +78,7 @@ class DetailsActivity : Activity() {
 
     fun updateIbiList(ibiValue: Int, ibiQualityStatus: Int, hrStatus: Int) {
         if (hrStatus == 1 && ibiQualityStatus == 0 && ibiValue != 0) {
-            Utils.addIbi(ibiValue)
+            Utils.updateIbiList(ibiValue)
         }
     }
 

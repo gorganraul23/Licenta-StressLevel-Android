@@ -5,6 +5,7 @@ import kotlin.math.sqrt
 object Utils {
 
     private val ibiList = mutableListOf<Int>()
+    private const val slidingWindowSize = 120;
 
     fun calculateHRV(): Double {
         val nnDifferences = mutableListOf<Double>()
@@ -23,7 +24,10 @@ object Utils {
         return ibiList.toList()
     }
 
-    fun addIbi(ibi: Int) {
+    fun updateIbiList(ibi: Int) {
+        if(ibiList.size >= slidingWindowSize){
+            ibiList.removeAt(0)
+        }
         ibiList.add(ibi)
     }
 

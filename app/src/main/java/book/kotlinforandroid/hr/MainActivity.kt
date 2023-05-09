@@ -47,7 +47,7 @@ class MainActivity : Activity() {
     private var hrvLast = 0.0
 
     private var sent = false;
-    private var session_id = 0;
+    private var sessionId = 0;
 
     private val handler = Handler()
     private lateinit var runnable: Runnable
@@ -95,7 +95,7 @@ class MainActivity : Activity() {
                 }
 
                 if (heartRateData.hrStatus == 1 && heartRateData.qIbi == 0 && heartRateData.ibi != 0) {
-                    Utils.addIbi(heartRateData.ibi)
+                    Utils.updateIbiList(heartRateData.ibi)
                     val rmssd = Utils.calculateHRV()
                     hrvLast = rmssd
                     val formattedNumber = String.format("%.3f", rmssd)
@@ -107,7 +107,7 @@ class MainActivity : Activity() {
                         apiService.startSession().enqueue(object : Callback<StartSessionResponse> {
                             override fun onResponse(call: Call<StartSessionResponse>, response: Response<StartSessionResponse>) {
                                 // handle the response
-                                session_id = response.body()!!.session_id
+                                sessionId = response.body()!!.session_id
                                 println(response.body()?.session_id)
                             }
                             override fun onFailure(call: Call<StartSessionResponse>, t: Throwable) {
@@ -118,7 +118,7 @@ class MainActivity : Activity() {
                     }
 
                     //// send data
-                    val data = SaveSensorDataRequest(session_id, rmssd, heartRateData.hr, heartRateData.ibi)
+                    val data = SaveSensorDataRequest(sessionId, rmssd, heartRateData.hr, heartRateData.ibi)
                     apiService.sendSensorData(data).enqueue(object : Callback<Void> {
                         override fun onResponse(call: Call<Void>, response: Response<Void>) {
                             // handle the response
@@ -268,7 +268,7 @@ class MainActivity : Activity() {
         sent = false
         Toast.makeText(applicationContext, getString(R.string.TimerReset), Toast.LENGTH_LONG).show()
 
-        apiService.endSession(session_id).enqueue(object : Callback<StartSessionResponse> {
+        apiService.endSession(sessionId).enqueue(object : Callback<StartSessionResponse> {
             override fun onResponse(call: Call<StartSessionResponse>, response: Response<StartSessionResponse>) {
                 // handle the response
                 println(response.body()?.session_id)
