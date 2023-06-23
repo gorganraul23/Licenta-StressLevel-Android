@@ -1,10 +1,12 @@
-package book.kotlinforandroid.hr
+package book.kotlinforandroid.hr.activities
 
 import android.app.Activity
 import android.graphics.Color
 import android.os.Bundle
 import android.util.Log
 import android.widget.Toast
+import book.kotlinforandroid.hr.R
+import book.kotlinforandroid.hr.Utils
 import book.kotlinforandroid.hr.databinding.ActivityDetailsBinding
 import book.kotlinforandroid.hr.model.HeartRateData
 import book.kotlinforandroid.hr.model.HeartRateStatus

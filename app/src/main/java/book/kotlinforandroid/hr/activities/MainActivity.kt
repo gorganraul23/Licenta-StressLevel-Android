@@ -1,4 +1,4 @@
-package book.kotlinforandroid.hr
+package book.kotlinforandroid.hr.activities
 
 import android.Manifest
 import android.app.Activity
@@ -10,6 +10,9 @@ import android.util.Log
 import android.view.View
 import android.widget.Toast
 import androidx.core.app.ActivityCompat
+import book.kotlinforandroid.hr.ApiService
+import book.kotlinforandroid.hr.R
+import book.kotlinforandroid.hr.Utils
 import book.kotlinforandroid.hr.connection.ConnectionManager
 import book.kotlinforandroid.hr.connection.ConnectionObserver
 import book.kotlinforandroid.hr.databinding.ActivityMainBinding
@@ -21,7 +24,6 @@ import book.kotlinforandroid.hr.model.StartSessionResponse
 import book.kotlinforandroid.hr.tracker.TrackerDataNotifier
 import book.kotlinforandroid.hr.tracker.TrackerDataObserver
 import com.samsung.android.service.health.tracking.HealthTrackerException
-import okhttp3.ResponseBody
 import retrofit2.Call
 import retrofit2.Callback
 import retrofit2.Response
@@ -55,7 +57,7 @@ class MainActivity : Activity() {
     private var elapsedTime: Long = 0
 
     val retrofit = Retrofit.Builder()
-        .baseUrl("http://192.168.1.5:8000/")
+        .baseUrl("http://192.168.0.105:8000/")
         .addConverterFactory(GsonConverterFactory.create())
         .build()
     val apiService = retrofit.create(ApiService::class.java)
@@ -105,11 +107,15 @@ class MainActivity : Activity() {
                     if (!sent) {
                         sent = true
                         apiService.startSession().enqueue(object : Callback<StartSessionResponse> {
-                            override fun onResponse(call: Call<StartSessionResponse>, response: Response<StartSessionResponse>) {
+                            override fun onResponse(
+                                call: Call<StartSessionResponse>,
+                                response: Response<StartSessionResponse>
+                            ) {
                                 // handle the response
                                 sessionId = response.body()!!.session_id
                                 println(response.body()?.session_id)
                             }
+
                             override fun onFailure(call: Call<StartSessionResponse>, t: Throwable) {
                                 // handle the failure
                                 println(t.message)
@@ -118,12 +124,14 @@ class MainActivity : Activity() {
                     }
 
                     //// send data
-                    val data = SaveSensorDataRequest(sessionId, rmssd, heartRateData.hr, heartRateData.ibi)
+                    val data =
+                        SaveSensorDataRequest(sessionId, rmssd, heartRateData.hr, heartRateData.ibi)
                     apiService.sendSensorData(data).enqueue(object : Callback<Void> {
                         override fun onResponse(call: Call<Void>, response: Response<Void>) {
                             // handle the response
                             println(response.message())
                         }
+
                         override fun onFailure(call: Call<Void>, t: Throwable) {
                             // handle the failure
                             println(t.message)
@@ -269,10 +277,14 @@ class MainActivity : Activity() {
         Toast.makeText(applicationContext, getString(R.string.TimerReset), Toast.LENGTH_LONG).show()
 
         apiService.endSession(sessionId).enqueue(object : Callback<StartSessionResponse> {
-            override fun onResponse(call: Call<StartSessionResponse>, response: Response<StartSessionResponse>) {
+            override fun onResponse(
+                call: Call<StartSessionResponse>,
+                response: Response<StartSessionResponse>
+            ) {
                 // handle the response
                 println(response.body()?.session_id)
             }
+
             override fun onFailure(call: Call<StartSessionResponse>, t: Throwable) {
                 // handle the failure
                 println(t.message)
