@@ -1,7 +1,9 @@
 package book.kotlinforandroid.hr
 
 import book.kotlinforandroid.hr.model.SaveSensorDataRequest
+import book.kotlinforandroid.hr.model.SetReferenceRequest
 import book.kotlinforandroid.hr.model.StartSessionResponse
+import book.kotlinforandroid.hr.model.UserCredentials
 import retrofit2.Call
 import retrofit2.http.Body
 import retrofit2.http.POST
@@ -13,10 +15,16 @@ interface ApiService {
     @POST("api/start-session")
     fun startSession(): Call<StartSessionResponse>
 
+    @PUT("api/set-reference")
+    fun setReferenceValue(@Body referenceRequest: SetReferenceRequest): Call<StartSessionResponse>
+
     @PUT("api/end-session/{id}")
     fun endSession(@Path("id") id: Int): Call<StartSessionResponse>
 
     @POST("api/save-sensor-data")
     fun sendSensorData(@Body sensorData: SaveSensorDataRequest): Call<Void>
+
+    @POST("users/login/")
+    fun login(@Body credentials: UserCredentials): Call<Void>
 
 }

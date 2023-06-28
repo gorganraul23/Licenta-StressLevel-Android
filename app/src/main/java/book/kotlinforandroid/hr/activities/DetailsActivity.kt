@@ -126,8 +126,6 @@ class DetailsActivity : Activity() {
         Log.i(APP_TAG, "HR Status: $status")
         var stringId = R.string.DetailsStatusRunning
         when (status) {
-//            HeartRateStatus.HR_STATUS_FIND_HR.status -> stringId = R.string.DetailsStatusRunning
-//            HeartRateStatus.HR_STATUS_NONE.status -> {}
             HeartRateStatus.HR_STATUS_STOPPED.status -> stringId = R.string.DetailsStatusStopped
             HeartRateStatus.HR_STATUS_CALCULATING.status -> stringId = R.string.DetailsStatusRunning
             HeartRateStatus.HR_STATUS_NOT_STARTED.status -> stringId =

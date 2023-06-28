@@ -55,9 +55,10 @@ class MainActivity : Activity() {
     private lateinit var runnable: Runnable
     private var startTime: Long = 0
     private var elapsedTime: Long = 0
+    private var nbOfValues = 0
 
     val retrofit = Retrofit.Builder()
-        .baseUrl("http://192.168.0.105:8000/")
+        .baseUrl("http://192.168.1.4:8000/")
         .addConverterFactory(GsonConverterFactory.create())
         .build()
     val apiService = retrofit.create(ApiService::class.java)
@@ -79,6 +80,8 @@ class MainActivity : Activity() {
             permissionGranted = true
             createConnectionManager()
         }
+
+        println(Utils.userEmail)
     }
 
     ///// tracker
@@ -124,8 +127,8 @@ class MainActivity : Activity() {
                     }
 
                     //// send data
-                    val data =
-                        SaveSensorDataRequest(sessionId, rmssd, heartRateData.hr, heartRateData.ibi)
+                    val data = SaveSensorDataRequest(sessionId, rmssd, heartRateData.hr, heartRateData.ibi)
+
                     apiService.sendSensorData(data).enqueue(object : Callback<Void> {
                         override fun onResponse(call: Call<Void>, response: Response<Void>) {
                             // handle the response
@@ -137,6 +140,9 @@ class MainActivity : Activity() {
                             println(t.message)
                         }
                     })
+
+                    nbOfValues++
+
 
                 }
             }
@@ -265,6 +271,7 @@ class MainActivity : Activity() {
     fun resetMeasurement(view: View) {
         startTime = 0
         elapsedTime = 0
+        nbOfValues = 0
         val minutes = TimeUnit.MILLISECONDS.toMinutes(elapsedTime)
         val seconds = TimeUnit.MILLISECONDS.toSeconds(elapsedTime) % 60
         val timeString = String.format("%02d:%02d", minutes, seconds)

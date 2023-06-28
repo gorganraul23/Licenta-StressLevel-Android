@@ -5,7 +5,10 @@ import kotlin.math.sqrt
 object Utils {
 
     private val ibiList = mutableListOf<Int>()
-    private const val slidingWindowSize = 120;
+    private const val slidingWindowSize = 120
+    const val referenceNumber = 30;
+
+    var userEmail = "gorganraul@yahoo.com"
 
     fun calculateHRV(): Double {
         val nnDifferences = mutableListOf<Double>()
@@ -33,6 +36,14 @@ object Utils {
 
     fun clearList(){
         ibiList.clear();
+    }
+
+    fun setEmail(email: String){
+        userEmail = email
+    }
+
+    fun clearEmail(){
+        userEmail = "";
     }
 
 }
