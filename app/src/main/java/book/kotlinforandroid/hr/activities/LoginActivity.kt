@@ -9,6 +9,7 @@ import android.widget.EditText
 import android.widget.Toast
 import book.kotlinforandroid.hr.ApiService
 import book.kotlinforandroid.hr.R
+import book.kotlinforandroid.hr.RetrofitInstance
 import book.kotlinforandroid.hr.Utils
 import book.kotlinforandroid.hr.databinding.ActivityLoginBinding
 import book.kotlinforandroid.hr.model.UserCredentials
@@ -22,15 +23,12 @@ class LoginActivity : Activity() {
 
     private val APP_TAG = "LoginActivity"
     private lateinit var binding: ActivityLoginBinding
-    private lateinit var emailInput : EditText
-    private lateinit var passwordInput : EditText
-    private lateinit var loginBtn : Button
+    private lateinit var emailInput: EditText
+    private lateinit var passwordInput: EditText
+    private lateinit var loginBtn: Button
 
-    val retrofit = Retrofit.Builder()
-        .baseUrl("http://192.168.1.4:8000/")
-        .addConverterFactory(GsonConverterFactory.create())
-        .build()
-    val apiService = retrofit.create(ApiService::class.java)
+    private val retrofit = RetrofitInstance.getRetrofitInstance()
+    private val apiService = retrofit.create(ApiService::class.java)
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -57,16 +55,18 @@ class LoginActivity : Activity() {
             apiService.login(UserCredentials(email, pass)).enqueue(object : Callback<Void> {
                 override fun onResponse(call: Call<Void>, response: Response<Void>) {
                     // handle the response
-                        println(response.message())
+                    if(response.message() == "Unauthorized")
+                        Toast.makeText(this@LoginActivity, "Invalid credentials", Toast.LENGTH_SHORT).show()
+                    else {
                         Utils.setEmail(email)
                         val intent = Intent(this@LoginActivity, MainActivity::class.java)
                         startActivity(intent)
-
-                        //Toast.makeText(this@LoginActivity, "Invalid credentialsss", Toast.LENGTH_SHORT).show()
+                    }
                 }
 
                 override fun onFailure(call: Call<Void>, t: Throwable) {
-                    Toast.makeText(this@LoginActivity, "Invalid credentials", Toast.LENGTH_SHORT).show()
+                    Toast.makeText(this@LoginActivity, "Invalid credentials", Toast.LENGTH_SHORT)
+                        .show()
                 }
             })
 

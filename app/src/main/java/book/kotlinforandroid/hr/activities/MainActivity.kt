@@ -12,6 +12,7 @@ import android.widget.Toast
 import androidx.core.app.ActivityCompat
 import book.kotlinforandroid.hr.ApiService
 import book.kotlinforandroid.hr.R
+import book.kotlinforandroid.hr.RetrofitInstance
 import book.kotlinforandroid.hr.Utils
 import book.kotlinforandroid.hr.connection.ConnectionManager
 import book.kotlinforandroid.hr.connection.ConnectionObserver
@@ -57,12 +58,8 @@ class MainActivity : Activity() {
     private var elapsedTime: Long = 0
     private var nbOfValues = 0
 
-    val retrofit = Retrofit.Builder()
-        .baseUrl("http://192.168.1.4:8000/")
-        .addConverterFactory(GsonConverterFactory.create())
-        .build()
-    val apiService = retrofit.create(ApiService::class.java)
-
+    private val retrofit = RetrofitInstance.getRetrofitInstance()
+    private val apiService = retrofit.create(ApiService::class.java)
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)

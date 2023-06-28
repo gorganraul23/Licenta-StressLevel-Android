@@ -5,7 +5,9 @@ import android.graphics.Color
 import android.os.Bundle
 import android.util.Log
 import android.widget.Toast
+import book.kotlinforandroid.hr.ApiService
 import book.kotlinforandroid.hr.R
+import book.kotlinforandroid.hr.RetrofitInstance
 import book.kotlinforandroid.hr.Utils
 import book.kotlinforandroid.hr.databinding.ActivityDetailsBinding
 import book.kotlinforandroid.hr.model.HeartRateData
@@ -22,6 +24,9 @@ class DetailsActivity : Activity() {
     private var heartRateDataLast = HeartRateData()
     private var hrvLast = 0.0
     private var resetSignal = false
+
+    private val retrofit = RetrofitInstance.getRetrofitInstance()
+    private val apiService = retrofit.create(ApiService::class.java)
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
