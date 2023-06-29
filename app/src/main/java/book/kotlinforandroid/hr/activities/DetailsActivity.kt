@@ -4,10 +4,9 @@ import android.app.Activity
 import android.graphics.Color
 import android.os.Bundle
 import android.util.Log
+import android.view.WindowManager
 import android.widget.Toast
-import book.kotlinforandroid.hr.ApiService
 import book.kotlinforandroid.hr.R
-import book.kotlinforandroid.hr.RetrofitInstance
 import book.kotlinforandroid.hr.Utils
 import book.kotlinforandroid.hr.databinding.ActivityDetailsBinding
 import book.kotlinforandroid.hr.model.HeartRateData
@@ -25,14 +24,14 @@ class DetailsActivity : Activity() {
     private var hrvLast = 0.0
     private var resetSignal = false
 
-    private val retrofit = RetrofitInstance.getRetrofitInstance()
-    private val apiService = retrofit.create(ApiService::class.java)
-
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
 
         binding = ActivityDetailsBinding.inflate(layoutInflater)
         setContentView(binding.root)
+
+        // keep screen on
+        window.addFlags(WindowManager.LayoutParams.FLAG_KEEP_SCREEN_ON);
 
         binding.txtValueHRV.text = getString(R.string.HRVDefaultValue)
 
@@ -135,14 +134,18 @@ class DetailsActivity : Activity() {
             HeartRateStatus.HR_STATUS_CALCULATING.status -> stringId = R.string.DetailsStatusRunning
             HeartRateStatus.HR_STATUS_NOT_STARTED.status -> stringId =
                 R.string.DetailsStatusNotStarted
+
             HeartRateStatus.HR_STATUS_ATTACHED.status -> stringId = R.string.DetailsStatusAttached
             HeartRateStatus.HR_STATUS_DETECT_MOVE.status -> stringId =
                 R.string.DetailsStatusMoveDetection
+
             HeartRateStatus.HR_STATUS_DETACHED.status -> stringId = R.string.DetailsStatusDetached
             HeartRateStatus.HR_STATUS_LOW_RELIABILITY.status -> stringId =
                 R.string.DetailsStatusLowReliability
+
             HeartRateStatus.HR_STATUS_VERY_LOW_RELIABILITY.status -> stringId =
                 R.string.DetailsStatusVeryLowReliability
+
             HeartRateStatus.HR_STATUS_NO_DATA_FLUSH.status -> stringId =
                 R.string.DetailsStatusNoDataFlush
         }

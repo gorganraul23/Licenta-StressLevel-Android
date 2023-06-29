@@ -8,12 +8,15 @@ import android.os.Bundle
 import android.os.Handler
 import android.util.Log
 import android.view.View
+import android.view.WindowManager
 import android.widget.Toast
 import androidx.core.app.ActivityCompat
 import book.kotlinforandroid.hr.ApiService
 import book.kotlinforandroid.hr.R
 import book.kotlinforandroid.hr.RetrofitInstance
 import book.kotlinforandroid.hr.Utils
+import book.kotlinforandroid.hr.Utils.nbOfValues
+import book.kotlinforandroid.hr.Utils.slidingWindowSize
 import book.kotlinforandroid.hr.connection.ConnectionManager
 import book.kotlinforandroid.hr.connection.ConnectionObserver
 import book.kotlinforandroid.hr.databinding.ActivityMainBinding
@@ -21,6 +24,7 @@ import book.kotlinforandroid.hr.listener.HeartRateListener
 import book.kotlinforandroid.hr.model.HeartRateData
 import book.kotlinforandroid.hr.model.HeartRateStatus
 import book.kotlinforandroid.hr.model.SaveSensorDataRequest
+import book.kotlinforandroid.hr.model.SetReferenceRequest
 import book.kotlinforandroid.hr.model.StartSessionResponse
 import book.kotlinforandroid.hr.tracker.TrackerDataNotifier
 import book.kotlinforandroid.hr.tracker.TrackerDataObserver
@@ -28,8 +32,6 @@ import com.samsung.android.service.health.tracking.HealthTrackerException
 import retrofit2.Call
 import retrofit2.Callback
 import retrofit2.Response
-import retrofit2.Retrofit
-import retrofit2.converter.gson.GsonConverterFactory
 import java.lang.String
 import java.util.concurrent.TimeUnit
 
@@ -56,7 +58,6 @@ class MainActivity : Activity() {
     private lateinit var runnable: Runnable
     private var startTime: Long = 0
     private var elapsedTime: Long = 0
-    private var nbOfValues = 0
 
     private val retrofit = RetrofitInstance.getRetrofitInstance()
     private val apiService = retrofit.create(ApiService::class.java)
@@ -66,6 +67,9 @@ class MainActivity : Activity() {
 
         binding = ActivityMainBinding.inflate(layoutInflater)
         setContentView(binding.root)
+
+        // keep screen on
+        window.addFlags(WindowManager.LayoutParams.FLAG_KEEP_SCREEN_ON);
 
         ////// permission for body sensors
         if (ActivityCompat.checkSelfPermission(
@@ -78,7 +82,6 @@ class MainActivity : Activity() {
             createConnectionManager()
         }
 
-        println(Utils.userEmail)
     }
 
     ///// tracker
@@ -87,11 +90,13 @@ class MainActivity : Activity() {
         override fun onHeartRateTrackerDataChanged(heartRateData: HeartRateData) {
             runOnUiThread {
                 heartRateDataLast = heartRateData
-                Log.i(APP_TAG, "HR Status: " + heartRateData.hrStatus)
+                Log.i(
+                    APP_TAG,
+                    heartRateData.hrStatus.toString() + ", Ibi: " + heartRateData.ibi + ", Qibi: " + heartRateData.qIbi
+                )
 
                 if (heartRateData.hrStatus == HeartRateStatus.HR_STATUS_FIND_HR.status) {
                     binding.txtHeartRate.text = heartRateData.hr.toString()
-                    Log.i(APP_TAG, "HR: " + heartRateData.hr)
                 } else {
                     binding.txtHeartRate.text = getString(R.string.HeartRateDefaultValue)
                 }
@@ -103,28 +108,9 @@ class MainActivity : Activity() {
                     val formattedNumber = String.format("%.3f", rmssd)
                     binding.txtHRV.text = formattedNumber
 
-                    //// request session id
-                    if (!sent) {
-                        sent = true
-                        apiService.startSession().enqueue(object : Callback<StartSessionResponse> {
-                            override fun onResponse(
-                                call: Call<StartSessionResponse>,
-                                response: Response<StartSessionResponse>
-                            ) {
-                                // handle the response
-                                sessionId = response.body()!!.session_id
-                                println(response.body()?.session_id)
-                            }
-
-                            override fun onFailure(call: Call<StartSessionResponse>, t: Throwable) {
-                                // handle the failure
-                                println(t.message)
-                            }
-                        })
-                    }
-
                     //// send data
-                    val data = SaveSensorDataRequest(sessionId, rmssd, heartRateData.hr, heartRateData.ibi)
+                    val data =
+                        SaveSensorDataRequest(sessionId, rmssd, heartRateData.hr, heartRateData.ibi)
 
                     apiService.sendSensorData(data).enqueue(object : Callback<Void> {
                         override fun onResponse(call: Call<Void>, response: Response<Void>) {
@@ -139,8 +125,26 @@ class MainActivity : Activity() {
                     })
 
                     nbOfValues++
+                    if (nbOfValues == 120) {
+                        val refData = SetReferenceRequest(sessionId, rmssd)
+                        println("!!!!!!!!!!!!!! Ref: " + refData.hrv)
+                        Toast.makeText(applicationContext, "Reference collected", Toast.LENGTH_LONG)
+                            .show()
+                        slidingWindowSize = 15
+                        Utils.setListLastNValues(15)
 
+                        apiService.setReferenceValue(refData).enqueue(object : Callback<Void> {
+                            override fun onResponse(call: Call<Void>, response: Response<Void>) {
+                                // handle the response
+                                println(response.message())
+                            }
 
+                            override fun onFailure(call: Call<Void>, t: Throwable) {
+                                // handle the failure
+                                println(t.message)
+                            }
+                        })
+                    }
                 }
             }
         }
@@ -223,6 +227,26 @@ class MainActivity : Activity() {
         startedOnce = true
         resetSignal = false
         heartRateListener?.startTracker()
+
+        /// request session id (create new session)
+        if (!sent) {
+            sent = true
+            apiService.startSession(Utils.userId).enqueue(object : Callback<StartSessionResponse> {
+                override fun onResponse(
+                    call: Call<StartSessionResponse>,
+                    response: Response<StartSessionResponse>
+                ) {
+                    // handle the response
+                    sessionId = response.body()!!.session_id
+                    println(response.body()?.session_id)
+                }
+
+                override fun onFailure(call: Call<StartSessionResponse>, t: Throwable) {
+                    // handle the failure
+                    println(t.message)
+                }
+            })
+        }
 
         binding.butStart.isEnabled = false
         binding.butStop.isEnabled = true
