@@ -125,7 +125,6 @@ class DetailsActivity : Activity() {
         }
     }
 
-
     private fun setStatus(status: Int) {
         Log.i(APP_TAG, "HR Status: $status")
         var stringId = R.string.DetailsStatusRunning

@@ -16,7 +16,6 @@ import book.kotlinforandroid.hr.R
 import book.kotlinforandroid.hr.RetrofitInstance
 import book.kotlinforandroid.hr.Utils
 import book.kotlinforandroid.hr.Utils.nbOfValues
-import book.kotlinforandroid.hr.Utils.slidingWindowSize
 import book.kotlinforandroid.hr.connection.ConnectionManager
 import book.kotlinforandroid.hr.connection.ConnectionObserver
 import book.kotlinforandroid.hr.databinding.ActivityMainBinding
@@ -69,7 +68,7 @@ class MainActivity : Activity() {
         setContentView(binding.root)
 
         // keep screen on
-        window.addFlags(WindowManager.LayoutParams.FLAG_KEEP_SCREEN_ON);
+        window.addFlags(WindowManager.LayoutParams.FLAG_KEEP_SCREEN_ON)
 
         ////// permission for body sensors
         if (ActivityCompat.checkSelfPermission(
@@ -104,6 +103,7 @@ class MainActivity : Activity() {
                 if (heartRateData.hrStatus == 1 && heartRateData.qIbi == 0 && heartRateData.ibi != 0) {
                     Utils.updateIbiList(heartRateData.ibi)
                     val rmssd = Utils.calculateHRV()
+                    println("Values: " + Utils.getIbiList().size + ", hrv: " + rmssd)
                     hrvLast = rmssd
                     val formattedNumber = String.format("%.3f", rmssd)
                     binding.txtHRV.text = formattedNumber
@@ -130,8 +130,9 @@ class MainActivity : Activity() {
                         println("!!!!!!!!!!!!!! Ref: " + refData.hrv)
                         Toast.makeText(applicationContext, "Reference collected", Toast.LENGTH_LONG)
                             .show()
-                        slidingWindowSize = 15
-                        Utils.setListLastNValues(15)
+                        //slidingWindowSize = 120
+                        //Utils.setListLastNValues(120)
+                        //Utils.clearList()
 
                         apiService.setReferenceValue(refData).enqueue(object : Callback<Void> {
                             override fun onResponse(call: Call<Void>, response: Response<Void>) {
@@ -179,7 +180,6 @@ class MainActivity : Activity() {
             TrackerDataNotifier.getInstance().addObserver(trackerDataObserver)
             heartRateListener = HeartRateListener()
             connectionManager?.initHeartRate(heartRateListener!!)
-            //heartRateListener!!.startTracker()
         }
 
         override fun onError(e: HealthTrackerException) {
@@ -265,7 +265,6 @@ class MainActivity : Activity() {
             }
         }
         handler.postDelayed(runnable, 0)
-
     }
 
     //// stop button

@@ -14,11 +14,11 @@ open class BaseListener {
 
     private var trackerEventListener: HealthTracker.TrackerEventListener? = null
 
-    fun setHandler(handler: Handler){
+    fun setHandler(handler: Handler) {
         this.handler = handler
     }
 
-    fun setHealthTracker(healthTracker: HealthTracker){
+    fun setHealthTracker(healthTracker: HealthTracker) {
         this.healthTracker = healthTracker
     }
 
@@ -26,17 +26,17 @@ open class BaseListener {
         isHandlerRunning = handlerRunning
     }
 
-    fun setTrackerEventListener(tracker: HealthTracker.TrackerEventListener){
+    fun setTrackerEventListener(tracker: HealthTracker.TrackerEventListener) {
         this.trackerEventListener = tracker
     }
 
 
-    fun startTracker(){
+    fun startTracker() {
         Log.i(APP_TAG, "startTracker called")
         Log.d(APP_TAG, "tracker: $healthTracker")
         Log.d(APP_TAG, "eventListener: $trackerEventListener")
 
-        if(!isHandlerRunning){
+        if (!isHandlerRunning) {
             handler?.post {
                 healthTracker?.setEventListener(trackerEventListener)
                 setHandlerRunning(true)
@@ -44,12 +44,12 @@ open class BaseListener {
         }
     }
 
-    fun stopTracker(){
+    fun stopTracker() {
         Log.i(APP_TAG, "stopTracker called")
         Log.d(APP_TAG, "tracker: $healthTracker")
         Log.d(APP_TAG, "eventListener: $trackerEventListener")
 
-        if(isHandlerRunning){
+        if (isHandlerRunning) {
             healthTracker?.unsetEventListener()
             setHandlerRunning(false)
             handler?.removeCallbacksAndMessages(null)

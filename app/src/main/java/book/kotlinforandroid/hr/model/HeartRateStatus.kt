@@ -1,6 +1,6 @@
 package book.kotlinforandroid.hr.model
 
-enum class HeartRateStatus (val status: Int) {
+enum class HeartRateStatus(val status: Int) {
     HR_STATUS_NONE(0),
     HR_STATUS_CALCULATING(2),
     HR_STATUS_STOPPED(3),
