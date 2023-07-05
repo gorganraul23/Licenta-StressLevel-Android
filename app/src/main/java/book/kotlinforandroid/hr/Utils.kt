@@ -26,10 +26,6 @@ object Utils {
         ibiList.clear();
     }
 
-    fun setListLastNValues(n: Int) {
-        ibiList = ibiList.subList(ibiList.size - n, ibiList.size)
-    }
-
     fun setEmail(email: String) {
         userEmail = email
     }

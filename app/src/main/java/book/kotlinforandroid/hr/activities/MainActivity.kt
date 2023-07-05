@@ -127,12 +127,8 @@ class MainActivity : Activity() {
                     nbOfValues++
                     if (nbOfValues == 120) {
                         val refData = SetReferenceRequest(sessionId, rmssd)
-                        println("!!!!!!!!!!!!!! Ref: " + refData.hrv)
                         Toast.makeText(applicationContext, "Reference collected", Toast.LENGTH_LONG)
                             .show()
-                        //slidingWindowSize = 120
-                        //Utils.setListLastNValues(120)
-                        //Utils.clearList()
 
                         apiService.setReferenceValue(refData).enqueue(object : Callback<Void> {
                             override fun onResponse(call: Call<Void>, response: Response<Void>) {
