@@ -104,33 +104,23 @@ class MainActivity : Activity() {
                     Utils.updateIbiList(heartRateData.ibi)
                     val rmssd = Utils.calculateHRV()
                     println("Values: " + Utils.getIbiList().size + ", hrv: " + rmssd)
-                    hrvLast = rmssd
-                    val formattedNumber = String.format("%.3f", rmssd)
-                    binding.txtHRV.text = formattedNumber
 
-                    //// send data
-                    val data =
-                        SaveSensorDataRequest(sessionId, rmssd, heartRateData.hr, heartRateData.ibi)
+                    if(rmssd != 0.0) {
 
-                    apiService.sendSensorData(data).enqueue(object : Callback<Void> {
-                        override fun onResponse(call: Call<Void>, response: Response<Void>) {
-                            // handle the response
-                            println(response.message())
-                        }
+                        hrvLast = rmssd
+                        val formattedNumber = String.format("%.3f", rmssd)
+                        binding.txtHRV.text = formattedNumber
 
-                        override fun onFailure(call: Call<Void>, t: Throwable) {
-                            // handle the failure
-                            println(t.message)
-                        }
-                    })
+                        //// send data
+                        val data =
+                            SaveSensorDataRequest(
+                                sessionId,
+                                rmssd,
+                                heartRateData.hr,
+                                heartRateData.ibi
+                            )
 
-                    nbOfValues++
-                    if (nbOfValues == 120) {
-                        val refData = SetReferenceRequest(sessionId, rmssd)
-                        Toast.makeText(applicationContext, "Reference collected", Toast.LENGTH_LONG)
-                            .show()
-
-                        apiService.setReferenceValue(refData).enqueue(object : Callback<Void> {
+                        apiService.sendSensorData(data).enqueue(object : Callback<Void> {
                             override fun onResponse(call: Call<Void>, response: Response<Void>) {
                                 // handle the response
                                 println(response.message())
@@ -141,6 +131,32 @@ class MainActivity : Activity() {
                                 println(t.message)
                             }
                         })
+
+                        nbOfValues++
+                        if (nbOfValues == 120) {
+                            val refData = SetReferenceRequest(sessionId, rmssd)
+                            Toast.makeText(
+                                applicationContext,
+                                "Reference collected",
+                                Toast.LENGTH_LONG
+                            )
+                                .show()
+
+                            apiService.setReferenceValue(refData).enqueue(object : Callback<Void> {
+                                override fun onResponse(
+                                    call: Call<Void>,
+                                    response: Response<Void>
+                                ) {
+                                    // handle the response
+                                    println(response.message())
+                                }
+
+                                override fun onFailure(call: Call<Void>, t: Throwable) {
+                                    // handle the failure
+                                    println(t.message)
+                                }
+                            })
+                        }
                     }
                 }
             }
