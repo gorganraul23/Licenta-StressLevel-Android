@@ -7,6 +7,9 @@ import android.util.Log
 import book.kotlinforandroid.hr.R
 import book.kotlinforandroid.hr.listener.BaseListener
 import book.kotlinforandroid.hr.listener.HeartRateListener
+import book.kotlinforandroid.hr.listener.PpgGreenListener
+import book.kotlinforandroid.hr.listener.PpgIrListener
+import book.kotlinforandroid.hr.listener.PpgRedListener
 import com.samsung.android.service.health.tracking.ConnectionListener
 import com.samsung.android.service.health.tracking.HealthTracker
 import com.samsung.android.service.health.tracking.HealthTrackerException
@@ -27,6 +30,9 @@ class ConnectionManager(observer: ConnectionObserver) {
             if (!isHeartRateAvailable(healthTrackingService)) {
                 Log.i(APP_TAG, "Device does not support Heart Rate tracking")
                 connectionObserver?.onConnectionResult(R.string.NoHrSupport)
+            }
+            if (!isPPGAvailable(healthTrackingService)) {
+                Log.i(APP_TAG, "Device does not support PPG tracking")
             }
         }
 
@@ -57,16 +63,47 @@ class ConnectionManager(observer: ConnectionObserver) {
         setHandlerForBaseListener(heartRateListener)
     }
 
+    fun initPpgRed(ppgRedListener: PpgRedListener) {
+        val ppgRedTracker: HealthTracker =
+            healthTrackingService!!.getHealthTracker(HealthTrackerType.PPG_RED)
+        ppgRedListener.setHealthTracker(ppgRedTracker)
+
+        setHandlerForBaseListener(ppgRedListener)
+    }
+
+    fun initPpgIr(ppgIrListener: PpgIrListener) {
+        val ppgIrTracker: HealthTracker =
+            healthTrackingService!!.getHealthTracker(HealthTrackerType.PPG_IR)
+        ppgIrListener.setHealthTracker(ppgIrTracker)
+
+        setHandlerForBaseListener(ppgIrListener)
+    }
+
+    fun initPpgGreen(ppgGreenListener: PpgGreenListener) {
+        val ppgGreenTracker: HealthTracker =
+            healthTrackingService!!.getHealthTracker(HealthTrackerType.PPG_GREEN)
+        ppgGreenListener.setHealthTracker(ppgGreenTracker)
+
+        setHandlerForBaseListener(ppgGreenListener)
+    }
+
     private fun setHandlerForBaseListener(baseListener: BaseListener) {
         baseListener.setHandler(Handler(Looper.getMainLooper()))
     }
 
     fun isHeartRateAvailable(healthTrackingService: HealthTrackingService?): Boolean {
-        if (healthTrackingService!!.trackingCapability.supportHealthTrackerTypes.contains(
-                HealthTrackerType.HEART_RATE
-            )
+        return healthTrackingService!!.trackingCapability.supportHealthTrackerTypes.contains(
+            HealthTrackerType.HEART_RATE
         )
-            return true
-        return false
+    }
+
+    fun isPPGAvailable(healthTrackingService: HealthTrackingService?): Boolean {
+        return healthTrackingService!!.trackingCapability.supportHealthTrackerTypes.contains(
+            HealthTrackerType.PPG_IR
+        ) && healthTrackingService.trackingCapability.supportHealthTrackerTypes.contains(
+            HealthTrackerType.PPG_GREEN
+        ) && healthTrackingService.trackingCapability.supportHealthTrackerTypes.contains(
+            HealthTrackerType.PPG_RED
+        )
     }
 }

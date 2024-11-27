@@ -20,6 +20,9 @@ import book.kotlinforandroid.hr.connection.ConnectionManager
 import book.kotlinforandroid.hr.connection.ConnectionObserver
 import book.kotlinforandroid.hr.databinding.ActivityMainBinding
 import book.kotlinforandroid.hr.listener.HeartRateListener
+import book.kotlinforandroid.hr.listener.PpgGreenListener
+import book.kotlinforandroid.hr.listener.PpgIrListener
+import book.kotlinforandroid.hr.listener.PpgRedListener
 import book.kotlinforandroid.hr.model.HeartRateData
 import book.kotlinforandroid.hr.model.HeartRateStatus
 import book.kotlinforandroid.hr.model.SaveSensorDataRequest
@@ -43,6 +46,9 @@ class MainActivity : Activity() {
 
     private var connectionManager: ConnectionManager? = null
     private var heartRateListener: HeartRateListener? = null
+    private var ppgRedListener: PpgRedListener? = null
+    private var ppgIrListener: PpgIrListener? = null
+    private var ppgGreenListener: PpgGreenListener? = null
     private var connected = false
     private var isMeasuring = false
     private var startedOnce = false
@@ -99,9 +105,9 @@ class MainActivity : Activity() {
                 } else {
                     binding.txtHeartRate.text = getString(R.string.HeartRateDefaultValue)
                 }
-
-                if (heartRateData.hrStatus == 1 && heartRateData.qIbi == 0 && heartRateData.ibi != 0) {
-                    Utils.updateIbiList(heartRateData.ibi)
+//                heartRateData.hrStatus == 1 && heartRateData.qIbi == 0 &&
+                if (heartRateData.ibi != 0) {
+                        Utils.updateIbiList(heartRateData.ibi)
                     val rmssd = Utils.calculateHRV()
                     println("Values: " + Utils.getIbiList().size + ", hrv: " + rmssd)
 
@@ -190,8 +196,18 @@ class MainActivity : Activity() {
 
             /// setting listener
             TrackerDataNotifier.getInstance().addObserver(trackerDataObserver)
+
             heartRateListener = HeartRateListener()
             connectionManager?.initHeartRate(heartRateListener!!)
+
+            ppgRedListener = PpgRedListener()
+            connectionManager?.initPpgRed(ppgRedListener!!)
+
+            ppgIrListener = PpgIrListener()
+            connectionManager?.initPpgIr(ppgIrListener!!)
+
+            ppgGreenListener = PpgGreenListener()
+            connectionManager?.initPpgGreen(ppgGreenListener!!)
         }
 
         override fun onError(e: HealthTrackerException) {
