@@ -27,5 +27,4 @@ interface ApiService {
 
     @POST("users/login/")
     fun login(@Body credentials: UserCredentials): Call<LoginResponse>
-
 }

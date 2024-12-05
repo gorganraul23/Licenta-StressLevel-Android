@@ -11,6 +11,8 @@ object Utils {
     var userEmail = ""
     var userId = 0
 
+    var ipAddress = "192.168.1.5"
+
     fun getIbiList(): List<Int> {
         return ibiList.toList()
     }

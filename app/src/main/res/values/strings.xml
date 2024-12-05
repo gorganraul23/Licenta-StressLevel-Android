@@ -63,4 +63,9 @@
     <string name="Email">Email</string>
     <string name="Password">Password</string>
 
+    <string name="ConfigTitle">Configuration</string>
+    <string name="IP">IP Address</string>
+    <string name="DefaultIP">192.168.1.1</string>
+    <string name="Continue">Continue</string>
+
 </resources>
