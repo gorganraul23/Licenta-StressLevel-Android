@@ -47,7 +47,7 @@ class ConfigActivity : Activity() {
             //if(isIpReachable(ipAddress)){
                 Toast.makeText(this@ConfigActivity, "IP Address Found", Toast.LENGTH_SHORT).show()
                 Utils.ipAddress = ipAddress
-                updateDomainInXml("res/xml/network_security_config.xml", Utils.ipAddress)
+                //updateDomainInXml("app/src/main/res/xml/network_security_config.xml", Utils.ipAddress)
                 val intent = Intent(this@ConfigActivity, LoginActivity::class.java)
                 startActivity(intent)
 //            }
