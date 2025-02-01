@@ -1,6 +1,7 @@
 package book.kotlinforandroid.hr
 
 import book.kotlinforandroid.hr.model.LoginResponse
+import book.kotlinforandroid.hr.model.SavePpgGreenDataRequest
 import book.kotlinforandroid.hr.model.SaveSensorDataRequest
 import book.kotlinforandroid.hr.model.SetReferenceRequest
 import book.kotlinforandroid.hr.model.StartSessionResponse
@@ -24,6 +25,9 @@ interface ApiService {
 
     @POST("api/save-sensor-data")
     fun sendSensorData(@Body sensorData: SaveSensorDataRequest): Call<Void>
+
+    @POST("api/save-ppg-green-data")
+    fun sendPpgGreenData(@Body ppgGreenData: SavePpgGreenDataRequest): Call<Void>
 
     @POST("users/login/")
     fun login(@Body credentials: UserCredentials): Call<LoginResponse>

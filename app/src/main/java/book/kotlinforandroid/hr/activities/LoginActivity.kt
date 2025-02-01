@@ -51,17 +51,10 @@ class LoginActivity : Activity() {
 
             apiService.login(UserCredentials(email, pass))
                 .enqueue(object : Callback<LoginResponse> {
-                    override fun onResponse(
-                        call: Call<LoginResponse>,
-                        response: Response<LoginResponse>
-                    ) {
+                    override fun onResponse(call: Call<LoginResponse>, response: Response<LoginResponse>) {
                         // handle the response
                         if (response.message() == "Unauthorized")
-                            Toast.makeText(
-                                this@LoginActivity,
-                                "Invalid credentials",
-                                Toast.LENGTH_SHORT
-                            ).show()
+                            Toast.makeText(this@LoginActivity, "Invalid credentials", Toast.LENGTH_SHORT).show()
                         else {
                             println(response.body()!!.user_id)
                             Utils.userId = response.body()!!.user_id
@@ -72,15 +65,9 @@ class LoginActivity : Activity() {
                     }
 
                     override fun onFailure(call: Call<LoginResponse>, t: Throwable) {
-                        Toast.makeText(
-                            this@LoginActivity,
-                            "Invalid credentials",
-                            Toast.LENGTH_SHORT
-                        )
-                            .show()
+                        Toast.makeText(this@LoginActivity, "Invalid credentials", Toast.LENGTH_SHORT).show()
                     }
                 })
-
         }
     }
 

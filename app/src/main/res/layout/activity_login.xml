@@ -63,6 +63,7 @@
         <EditText
             android:id="@+id/passwordInput"
             android:layout_width="137dp"
+            android:text="parola"
             android:layout_height="48dp"
             android:layout_margin="2dp"
             android:layout_marginStart="16dp"
@@ -96,6 +97,7 @@
             android:layout_marginStart="4dp"
             android:autofillHints=""
             android:hint=""
+            android:text="test@yahoo.com"
             android:inputType="textEmailAddress"
             app:layout_constraintBottom_toBottomOf="parent"
             app:layout_constraintStart_toStartOf="@id/guideline_left"

@@ -2,20 +2,24 @@ package book.kotlinforandroid.hr.listener
 
 import android.util.Log
 import book.kotlinforandroid.hr.R
-import book.kotlinforandroid.hr.model.HeartRateData
+import book.kotlinforandroid.hr.model.PpgData
 import book.kotlinforandroid.hr.tracker.TrackerDataNotifier
 import com.samsung.android.service.health.tracking.HealthTracker
 import com.samsung.android.service.health.tracking.data.DataPoint
 import com.samsung.android.service.health.tracking.data.ValueKey
 
 class PpgGreenListener : BaseListener() {
-
     private val APP_TAG = "PpgGreenListener"
+    private val ppgValues = mutableListOf<Int>()
 
     init {
         val trackerEventListener = object : HealthTracker.TrackerEventListener {
             override fun onDataReceived(list: List<DataPoint>) {
-                Log.i(APP_TAG, "Data received")
+                for (dataPoint in list) {
+                    val ppgValue = dataPoint.getValue(ValueKey.PpgGreenSet.PPG_GREEN)
+                    ppgValues.add(ppgValue)
+                }
+                sendPPGData()
             }
 
             override fun onFlushCompleted() {
@@ -35,5 +39,12 @@ class PpgGreenListener : BaseListener() {
             }
         }
         setTrackerEventListener(trackerEventListener)
+    }
+
+    private fun sendPPGData() {
+        val request = PpgData(ArrayList(ppgValues))
+        TrackerDataNotifier.getInstance().notifyPpgGreenTrackerObservers(request)
+
+        ppgValues.clear()
     }
 }

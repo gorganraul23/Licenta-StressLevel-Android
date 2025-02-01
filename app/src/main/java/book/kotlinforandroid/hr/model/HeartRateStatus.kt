@@ -12,4 +12,6 @@ enum class HeartRateStatus(val status: Int) {
     HR_STATUS_LOW_RELIABILITY(-8),
     HR_STATUS_VERY_LOW_RELIABILITY(-10),
     HR_STATUS_NO_DATA_FLUSH(-99),
+
+    // HR_STATUS_NOT_REGISTERED(404)
 }

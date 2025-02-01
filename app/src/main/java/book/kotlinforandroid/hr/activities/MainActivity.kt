@@ -25,6 +25,8 @@ import book.kotlinforandroid.hr.listener.PpgIrListener
 import book.kotlinforandroid.hr.listener.PpgRedListener
 import book.kotlinforandroid.hr.model.HeartRateData
 import book.kotlinforandroid.hr.model.HeartRateStatus
+import book.kotlinforandroid.hr.model.PpgData
+import book.kotlinforandroid.hr.model.SavePpgGreenDataRequest
 import book.kotlinforandroid.hr.model.SaveSensorDataRequest
 import book.kotlinforandroid.hr.model.SetReferenceRequest
 import book.kotlinforandroid.hr.model.StartSessionResponse
@@ -77,16 +79,12 @@ class MainActivity : Activity() {
         window.addFlags(WindowManager.LayoutParams.FLAG_KEEP_SCREEN_ON)
 
         ////// permission for body sensors
-        if (ActivityCompat.checkSelfPermission(
-                applicationContext, getString(R.string.BodySensors)
-            ) == PackageManager.PERMISSION_DENIED
-        )
+        if (ActivityCompat.checkSelfPermission(applicationContext, getString(R.string.BodySensors)) == PackageManager.PERMISSION_DENIED)
             requestPermissions(arrayOf(Manifest.permission.BODY_SENSORS), 0)
         else {
             permissionGranted = true
             createConnectionManager()
         }
-
     }
 
     ///// tracker
@@ -95,36 +93,27 @@ class MainActivity : Activity() {
         override fun onHeartRateTrackerDataChanged(heartRateData: HeartRateData) {
             runOnUiThread {
                 heartRateDataLast = heartRateData
-                Log.i(
-                    APP_TAG,
-                    heartRateData.hrStatus.toString() + ", Ibi: " + heartRateData.ibi + ", Qibi: " + heartRateData.qIbi
-                )
+                Log.i(APP_TAG, "Values: " + Utils.getIbiList().size + ", qIbi: " + heartRateData.qIbi + ", hr: " + heartRateData.hr + ", ibi: " + heartRateData.ibi)
 
                 if (heartRateData.hrStatus == HeartRateStatus.HR_STATUS_FIND_HR.status) {
                     binding.txtHeartRate.text = heartRateData.hr.toString()
                 } else {
                     binding.txtHeartRate.text = getString(R.string.HeartRateDefaultValue)
                 }
-//                heartRateData.hrStatus == 1 && heartRateData.qIbi == 0 &&
+
+                // heartRateData.hrStatus == 1 && heartRateData.qIbi == 0 &&
                 if (heartRateData.ibi != 0) {
-                        Utils.updateIbiList(heartRateData.ibi)
+                    Utils.updateIbiList(heartRateData.ibi)
                     val rmssd = Utils.calculateHRV()
-                    println("Values: " + Utils.getIbiList().size + ", hrv: " + rmssd)
+                    Log.i(APP_TAG, "HRV: $rmssd")
 
                     if(rmssd != 0.0) {
-
                         hrvLast = rmssd
                         val formattedNumber = String.format("%.3f", rmssd)
                         binding.txtHRV.text = formattedNumber
 
                         //// send data
-                        val data =
-                            SaveSensorDataRequest(
-                                sessionId,
-                                rmssd,
-                                heartRateData.hr,
-                                heartRateData.ibi
-                            )
+                        val data = SaveSensorDataRequest(sessionId, rmssd, heartRateData.hr, heartRateData.ibi, heartRateData.qIbi)
 
                         apiService.sendSensorData(data).enqueue(object : Callback<Void> {
                             override fun onResponse(call: Call<Void>, response: Response<Void>) {
@@ -141,18 +130,10 @@ class MainActivity : Activity() {
                         nbOfValues++
                         if (nbOfValues == 120) {
                             val refData = SetReferenceRequest(sessionId, rmssd)
-                            Toast.makeText(
-                                applicationContext,
-                                "Reference collected",
-                                Toast.LENGTH_LONG
-                            )
-                                .show()
+                            Toast.makeText(applicationContext, "Reference collected", Toast.LENGTH_LONG).show()
 
                             apiService.setReferenceValue(refData).enqueue(object : Callback<Void> {
-                                override fun onResponse(
-                                    call: Call<Void>,
-                                    response: Response<Void>
-                                ) {
+                                override fun onResponse(call: Call<Void>, response: Response<Void>) {
                                     // handle the response
                                     println(response.message())
                                 }
@@ -165,6 +146,23 @@ class MainActivity : Activity() {
                         }
                     }
                 }
+            }
+        }
+
+        override fun onPpgGreenTrackerDataChanged(ppgGreenData: PpgData) {
+            runOnUiThread {
+                val dataToSave = SavePpgGreenDataRequest(sessionId, ppgGreenData.ppgValues)
+                apiService.sendPpgGreenData(dataToSave).enqueue(object : Callback<Void> {
+                    override fun onResponse(call: Call<Void>, response: Response<Void>) {
+                        // handle the response
+                        println(response.message())
+                    }
+
+                    override fun onFailure(call: Call<Void>, t: Throwable) {
+                        // handle the failure
+                        println(t.message)
+                    }
+                })
             }
         }
 
@@ -181,11 +179,7 @@ class MainActivity : Activity() {
     private val connectionObserver = object : ConnectionObserver {
         override fun onConnectionResult(stringResourceId: Int) {
             runOnUiThread {
-                Toast.makeText(
-                    applicationContext,
-                    getString(stringResourceId),
-                    Toast.LENGTH_LONG
-                ).show()
+                Toast.makeText(applicationContext, getString(stringResourceId), Toast.LENGTH_LONG).show()
             }
 
             if (stringResourceId != R.string.ConnectedToHs) {
@@ -213,22 +207,16 @@ class MainActivity : Activity() {
         override fun onError(e: HealthTrackerException) {
             if (e.errorCode == HealthTrackerException.OLD_PLATFORM_VERSION || e.errorCode == HealthTrackerException.PACKAGE_NOT_INSTALLED) {
                 runOnUiThread {
-                    Toast.makeText(
-                        applicationContext,
-                        getString(R.string.HealthPlatformVersionIsOutdated),
-                        Toast.LENGTH_LONG
-                    ).show()
+                    Toast.makeText(applicationContext, getString(R.string.HealthPlatformVersionIsOutdated), Toast.LENGTH_LONG).show()
                 }
             }
+
             if (e.hasResolution()) {
                 e.resolve(this@MainActivity)
-            } else {
+            }
+            else {
                 runOnUiThread {
-                    Toast.makeText(
-                        applicationContext,
-                        getString(R.string.ConnectionError),
-                        Toast.LENGTH_LONG
-                    ).show()
+                    Toast.makeText(applicationContext, getString(R.string.ConnectionError), Toast.LENGTH_LONG).show()
                 }
                 Log.e(APP_TAG, "Could not connect to Health Tracking Service: ${e.message}")
             }
@@ -248,25 +236,22 @@ class MainActivity : Activity() {
 
     //// start button
     fun startMeasurement(view: View) {
-
-        Toast.makeText(applicationContext, getString(R.string.MeasureStart), Toast.LENGTH_LONG)
-            .show()
+        Toast.makeText(applicationContext, getString(R.string.MeasureStart), Toast.LENGTH_LONG).show()
         isMeasuring = true
         startedOnce = true
         resetSignal = false
         heartRateListener?.startTracker()
+        ppgGreenListener?.startTracker()
+        ppgIrListener?.startTracker()
+        ppgRedListener?.startTracker()
 
         /// request session id (create new session)
         if (!sent) {
             sent = true
             apiService.startSession(Utils.userId).enqueue(object : Callback<StartSessionResponse> {
-                override fun onResponse(
-                    call: Call<StartSessionResponse>,
-                    response: Response<StartSessionResponse>
-                ) {
+                override fun onResponse(call: Call<StartSessionResponse>, response: Response<StartSessionResponse>) {
                     // handle the response
                     sessionId = response.body()!!.session_id
-                    println(response.body()?.session_id)
                 }
 
                 override fun onFailure(call: Call<StartSessionResponse>, t: Throwable) {
@@ -297,11 +282,12 @@ class MainActivity : Activity() {
 
     //// stop button
     fun stopMeasurement(view: View) {
-
-        Toast.makeText(applicationContext, getString(R.string.MeasureStop), Toast.LENGTH_LONG)
-            .show()
+        Toast.makeText(applicationContext, getString(R.string.MeasureStop), Toast.LENGTH_LONG).show()
         isMeasuring = false
         heartRateListener?.stopTracker()
+        ppgGreenListener?.stopTracker()
+        ppgIrListener?.stopTracker()
+        ppgRedListener?.stopTracker()
 
         binding.butStart.isEnabled = true
         binding.butStop.isEnabled = false
@@ -320,6 +306,10 @@ class MainActivity : Activity() {
         startTime = 0
         elapsedTime = 0
         nbOfValues = 0
+        heartRateListener?.stopTracker()
+        ppgGreenListener?.stopTracker()
+        ppgIrListener?.stopTracker()
+        ppgRedListener?.stopTracker()
         val minutes = TimeUnit.MILLISECONDS.toMinutes(elapsedTime)
         val seconds = TimeUnit.MILLISECONDS.toSeconds(elapsedTime) % 60
         val timeString = String.format("%02d:%02d", minutes, seconds)
@@ -332,10 +322,7 @@ class MainActivity : Activity() {
         Toast.makeText(applicationContext, getString(R.string.TimerReset), Toast.LENGTH_LONG).show()
 
         apiService.endSession(sessionId).enqueue(object : Callback<StartSessionResponse> {
-            override fun onResponse(
-                call: Call<StartSessionResponse>,
-                response: Response<StartSessionResponse>
-            ) {
+            override fun onResponse(call: Call<StartSessionResponse>, response: Response<StartSessionResponse>) {
                 // handle the response
                 println(response.body()?.session_id)
             }
@@ -363,30 +350,15 @@ class MainActivity : Activity() {
         startActivity(intent)
     }
 
-    override fun onRequestPermissionsResult(
-        requestCode: Int,
-        permissions: Array<out kotlin.String>,
-        grantResults: IntArray
-    ) {
-
+    override fun onRequestPermissionsResult(requestCode: Int, permissions: Array<out kotlin.String>, grantResults: IntArray) {
         if (requestCode == 0) {
             permissionGranted = true
             for (i in permissions.indices) {
                 if (grantResults[i] == PackageManager.PERMISSION_DENIED) {
                     if (!shouldShowRequestPermissionRationale(permissions[i]))
-                        Toast.makeText(
-                            applicationContext,
-                            getString(R.string.PermissionDeniedPermanently),
-                            Toast.LENGTH_LONG
-                        )
-                            .show()
+                        Toast.makeText(applicationContext, getString(R.string.PermissionDeniedPermanently), Toast.LENGTH_LONG).show()
                     else
-                        Toast.makeText(
-                            applicationContext,
-                            getString(R.string.PermissionDeniedRationale),
-                            Toast.LENGTH_LONG
-                        )
-                            .show()
+                        Toast.makeText(applicationContext, getString(R.string.PermissionDeniedRationale), Toast.LENGTH_LONG).show()
                     permissionGranted = false
                     break
                 }
@@ -400,23 +372,14 @@ class MainActivity : Activity() {
 
 
     private fun isPermissionsOrConnectionInvalid(): Boolean {
-        if (ActivityCompat.checkSelfPermission(
-                applicationContext,
-                getString(R.string.BodySensors)
-            ) == PackageManager.PERMISSION_DENIED
-        )
+        if (ActivityCompat.checkSelfPermission(applicationContext, getString(R.string.BodySensors)) == PackageManager.PERMISSION_DENIED)
             requestPermissions(arrayOf(Manifest.permission.BODY_SENSORS), 0)
         if (!permissionGranted) {
             Log.i(APP_TAG, "Could not get permissions. Terminating measurement")
             return true
         }
         if (!connected) {
-            Toast.makeText(
-                applicationContext,
-                getString(R.string.ConnectionError),
-                Toast.LENGTH_SHORT
-            )
-                .show()
+            Toast.makeText(applicationContext, getString(R.string.ConnectionError), Toast.LENGTH_SHORT).show()
             return true
         }
         return false
@@ -425,6 +388,9 @@ class MainActivity : Activity() {
     override fun onDestroy() {
         super.onDestroy()
         heartRateListener?.stopTracker()
+        ppgGreenListener?.stopTracker()
+        ppgIrListener?.stopTracker()
+        ppgRedListener?.stopTracker()
         TrackerDataNotifier.getInstance().removeObserver(trackerDataObserver)
         if (connectionManager != null) {
             connectionManager!!.disconnect()

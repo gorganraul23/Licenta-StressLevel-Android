@@ -1,6 +1,7 @@
 package book.kotlinforandroid.hr.tracker
 
 import book.kotlinforandroid.hr.model.HeartRateData
+import book.kotlinforandroid.hr.model.PpgData
 import java.util.function.Consumer
 
 class TrackerDataNotifier private constructor() {
@@ -30,6 +31,12 @@ class TrackerDataNotifier private constructor() {
     fun notifyHeartRateTrackerObservers(hrData: HeartRateData?) {
         observers.forEach(Consumer { observer: TrackerDataObserver ->
             observer.onHeartRateTrackerDataChanged(hrData!!)
+        })
+    }
+
+    fun notifyPpgGreenTrackerObservers(ppgGreenData: PpgData?) {
+        observers.forEach(Consumer { observer: TrackerDataObserver ->
+            observer.onPpgGreenTrackerDataChanged(ppgGreenData!!)
         })
     }
 

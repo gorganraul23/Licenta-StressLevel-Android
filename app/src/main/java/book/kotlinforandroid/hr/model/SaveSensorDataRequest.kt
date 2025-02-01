@@ -5,4 +5,5 @@ data class SaveSensorDataRequest(
     val hrv: Double,
     val hr: Int,
     val ibi: Int,
+    val ibiStatus: Int
 )

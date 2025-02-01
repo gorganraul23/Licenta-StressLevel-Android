@@ -56,32 +56,28 @@ class ConnectionManager(observer: ConnectionObserver) {
     }
 
     fun initHeartRate(heartRateListener: HeartRateListener) {
-        val heartRateTracker: HealthTracker =
-            healthTrackingService!!.getHealthTracker(HealthTrackerType.HEART_RATE)
+        val heartRateTracker: HealthTracker = healthTrackingService!!.getHealthTracker(HealthTrackerType.HEART_RATE)
         heartRateListener.setHealthTracker(heartRateTracker)
 
         setHandlerForBaseListener(heartRateListener)
     }
 
     fun initPpgRed(ppgRedListener: PpgRedListener) {
-        val ppgRedTracker: HealthTracker =
-            healthTrackingService!!.getHealthTracker(HealthTrackerType.PPG_RED)
+        val ppgRedTracker: HealthTracker = healthTrackingService!!.getHealthTracker(HealthTrackerType.PPG_RED)
         ppgRedListener.setHealthTracker(ppgRedTracker)
 
         setHandlerForBaseListener(ppgRedListener)
     }
 
     fun initPpgIr(ppgIrListener: PpgIrListener) {
-        val ppgIrTracker: HealthTracker =
-            healthTrackingService!!.getHealthTracker(HealthTrackerType.PPG_IR)
+        val ppgIrTracker: HealthTracker = healthTrackingService!!.getHealthTracker(HealthTrackerType.PPG_IR)
         ppgIrListener.setHealthTracker(ppgIrTracker)
 
         setHandlerForBaseListener(ppgIrListener)
     }
 
     fun initPpgGreen(ppgGreenListener: PpgGreenListener) {
-        val ppgGreenTracker: HealthTracker =
-            healthTrackingService!!.getHealthTracker(HealthTrackerType.PPG_GREEN)
+        val ppgGreenTracker: HealthTracker = healthTrackingService!!.getHealthTracker(HealthTrackerType.PPG_GREEN)
         ppgGreenListener.setHealthTracker(ppgGreenTracker)
 
         setHandlerForBaseListener(ppgGreenListener)
@@ -92,9 +88,7 @@ class ConnectionManager(observer: ConnectionObserver) {
     }
 
     fun isHeartRateAvailable(healthTrackingService: HealthTrackingService?): Boolean {
-        return healthTrackingService!!.trackingCapability.supportHealthTrackerTypes.contains(
-            HealthTrackerType.HEART_RATE
-        )
+        return healthTrackingService!!.trackingCapability.supportHealthTrackerTypes.contains(HealthTrackerType.HEART_RATE)
     }
 
     fun isPPGAvailable(healthTrackingService: HealthTrackingService?): Boolean {

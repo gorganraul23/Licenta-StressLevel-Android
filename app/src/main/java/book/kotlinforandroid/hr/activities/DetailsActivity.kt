@@ -11,6 +11,7 @@ import book.kotlinforandroid.hr.Utils
 import book.kotlinforandroid.hr.databinding.ActivityDetailsBinding
 import book.kotlinforandroid.hr.model.HeartRateData
 import book.kotlinforandroid.hr.model.HeartRateStatus
+import book.kotlinforandroid.hr.model.PpgData
 import book.kotlinforandroid.hr.tracker.TrackerDataNotifier
 import book.kotlinforandroid.hr.tracker.TrackerDataObserver
 
@@ -74,10 +75,15 @@ class DetailsActivity : Activity() {
             }
         }
 
+        override fun onPpgGreenTrackerDataChanged(ppgGreenData: PpgData) {
+            runOnUiThread {
+
+            }
+        }
+
         override fun onError(errorID: Int) {
             runOnUiThread {
-                Toast.makeText(applicationContext, getString(errorID), Toast.LENGTH_LONG)
-                    .show()
+                Toast.makeText(applicationContext, getString(errorID), Toast.LENGTH_LONG).show()
             }
         }
     }
@@ -104,10 +110,7 @@ class DetailsActivity : Activity() {
             binding.txtIbi.text = hrData.ibi.toString()
             binding.txtIbiStatus.text = hrData.qIbi.toString()
             binding.txtIbiStatus.setTextColor(if (hrData.qIbi == 0) Color.WHITE else Color.RED)
-            Log.d(
-                APP_TAG,
-                "HR: " + hrData.hr.toString() + " HR_IBI: " + hrData.ibi.toString() + " (" + hrData.qIbi.toString() + ") "
-            )
+            Log.d(APP_TAG, "HR: " + hrData.hr.toString() + " HR_IBI: " + hrData.ibi.toString() + " (" + hrData.qIbi.toString() + ") ")
         } else if (!resetSignal) {
             binding.txtHeartRate.text = heartRateDataLast.hr.toString()
             binding.txtHeartRateStatus.setTextColor(Color.RED)
