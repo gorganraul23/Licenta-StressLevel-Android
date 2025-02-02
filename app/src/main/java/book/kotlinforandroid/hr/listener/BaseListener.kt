@@ -6,7 +6,7 @@ import com.samsung.android.service.health.tracking.HealthTracker
 
 open class BaseListener {
 
-    private val APP_TAG = "BaseListener"
+    private val appTAG = "BaseListener"
 
     private var handler: Handler? = null
     private var healthTracker: HealthTracker? = null
@@ -32,9 +32,9 @@ open class BaseListener {
 
 
     fun startTracker() {
-        Log.i(APP_TAG, "startTracker called")
-        Log.d(APP_TAG, "tracker: $healthTracker")
-        Log.d(APP_TAG, "eventListener: $trackerEventListener")
+        Log.i(appTAG, "startTracker called")
+        Log.d(appTAG, "tracker: $healthTracker")
+        Log.d(appTAG, "eventListener: $trackerEventListener")
 
         if (!isHandlerRunning) {
             handler?.post {
@@ -45,9 +45,9 @@ open class BaseListener {
     }
 
     fun stopTracker() {
-        Log.i(APP_TAG, "stopTracker called")
-        Log.d(APP_TAG, "tracker: $healthTracker")
-        Log.d(APP_TAG, "eventListener: $trackerEventListener")
+        Log.i(appTAG, "stopTracker called")
+        Log.d(appTAG, "tracker: $healthTracker")
+        Log.d(appTAG, "eventListener: $trackerEventListener")
 
         if (isHandlerRunning) {
             healthTracker?.unsetEventListener()

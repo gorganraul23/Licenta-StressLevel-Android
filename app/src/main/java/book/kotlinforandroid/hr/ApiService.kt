@@ -1,6 +1,7 @@
 package book.kotlinforandroid.hr
 
 import book.kotlinforandroid.hr.model.LoginResponse
+import book.kotlinforandroid.hr.model.PingResponse
 import book.kotlinforandroid.hr.model.SavePpgGreenDataRequest
 import book.kotlinforandroid.hr.model.SaveSensorDataRequest
 import book.kotlinforandroid.hr.model.SetReferenceRequest
@@ -8,6 +9,7 @@ import book.kotlinforandroid.hr.model.StartSessionResponse
 import book.kotlinforandroid.hr.model.UserCredentials
 import retrofit2.Call
 import retrofit2.http.Body
+import retrofit2.http.GET
 import retrofit2.http.POST
 import retrofit2.http.PUT
 import retrofit2.http.Path
@@ -31,4 +33,7 @@ interface ApiService {
 
     @POST("users/login/")
     fun login(@Body credentials: UserCredentials): Call<LoginResponse>
+
+    @GET("api/ping")
+    fun pingIpAddress(): Call<PingResponse>
 }

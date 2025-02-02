@@ -3,6 +3,7 @@ package book.kotlinforandroid.hr.activities
 import android.app.Activity
 import android.content.Intent
 import android.os.Bundle
+import android.util.Log
 import android.widget.Button
 import android.widget.EditText
 import android.widget.Toast
@@ -19,14 +20,13 @@ import retrofit2.Response
 
 class LoginActivity : Activity() {
 
-    private val APP_TAG = "LoginActivity"
+    private val appTAG = "LoginActivity"
     private lateinit var binding: ActivityLoginBinding
     private lateinit var emailInput: EditText
     private lateinit var passwordInput: EditText
     private lateinit var loginBtn: Button
 
-    private val retrofit = RetrofitInstance.getRetrofitInstance()
-    private val apiService = retrofit.create(ApiService::class.java)
+    private val apiService = RetrofitInstance.getRetrofitInstance().create(ApiService::class.java)
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -52,11 +52,10 @@ class LoginActivity : Activity() {
             apiService.login(UserCredentials(email, pass))
                 .enqueue(object : Callback<LoginResponse> {
                     override fun onResponse(call: Call<LoginResponse>, response: Response<LoginResponse>) {
-                        // handle the response
                         if (response.message() == "Unauthorized")
                             Toast.makeText(this@LoginActivity, "Invalid credentials", Toast.LENGTH_SHORT).show()
                         else {
-                            println(response.body()!!.user_id)
+                            Log.i(appTAG, response.body()!!.user_id.toString())
                             Utils.userId = response.body()!!.user_id
                             Utils.setEmail(email)
                             val intent = Intent(this@LoginActivity, MainActivity::class.java)
@@ -70,5 +69,4 @@ class LoginActivity : Activity() {
                 })
         }
     }
-
 }

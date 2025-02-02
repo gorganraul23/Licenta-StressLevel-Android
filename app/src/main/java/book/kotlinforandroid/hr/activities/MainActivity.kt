@@ -33,6 +33,7 @@ import book.kotlinforandroid.hr.model.StartSessionResponse
 import book.kotlinforandroid.hr.tracker.TrackerDataNotifier
 import book.kotlinforandroid.hr.tracker.TrackerDataObserver
 import com.samsung.android.service.health.tracking.HealthTrackerException
+import org.checkerframework.checker.units.qual.t
 import retrofit2.Call
 import retrofit2.Callback
 import retrofit2.Response
@@ -41,7 +42,7 @@ import java.util.concurrent.TimeUnit
 
 class MainActivity : Activity() {
 
-    private val APP_TAG = "MainActivity"
+    private val appTAG = "MainActivity"
     private lateinit var binding: ActivityMainBinding
 
     private var permissionGranted = false
@@ -66,8 +67,7 @@ class MainActivity : Activity() {
     private var startTime: Long = 0
     private var elapsedTime: Long = 0
 
-    private val retrofit = RetrofitInstance.getRetrofitInstance()
-    private val apiService = retrofit.create(ApiService::class.java)
+    private val apiService = RetrofitInstance.getRetrofitInstance().create(ApiService::class.java)
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -93,7 +93,7 @@ class MainActivity : Activity() {
         override fun onHeartRateTrackerDataChanged(heartRateData: HeartRateData) {
             runOnUiThread {
                 heartRateDataLast = heartRateData
-                Log.i(APP_TAG, "Values: " + Utils.getIbiList().size + ", qIbi: " + heartRateData.qIbi + ", hr: " + heartRateData.hr + ", ibi: " + heartRateData.ibi)
+                Log.i(appTAG, "Values: " + Utils.getIbiList().size + ", qIbi: " + heartRateData.qIbi + ", hr: " + heartRateData.hr + ", ibi: " + heartRateData.ibi)
 
                 if (heartRateData.hrStatus == HeartRateStatus.HR_STATUS_FIND_HR.status) {
                     binding.txtHeartRate.text = heartRateData.hr.toString()
@@ -103,44 +103,48 @@ class MainActivity : Activity() {
 
                 // heartRateData.hrStatus == 1 && heartRateData.qIbi == 0 &&
                 if (heartRateData.ibi != 0) {
-                    Utils.updateIbiList(heartRateData.ibi)
-                    val rmssd = Utils.calculateHRV()
-                    Log.i(APP_TAG, "HRV: $rmssd")
 
-                    if(rmssd != 0.0) {
-                        hrvLast = rmssd
-                        val formattedNumber = String.format("%.3f", rmssd)
-                        binding.txtHRV.text = formattedNumber
+                    Utils.updateIbiListWithInvalid(heartRateData.ibi) // stores all IBIs (valid + invalid)
+                    if (heartRateData.qIbi == 0) {
+                        Utils.updateIbiList(heartRateData.ibi) // stores only valid IBIs
+                    }
+
+                    //val rmssd = Utils.calculateHRV()
+                    val hrvValid = Utils.calculateHRV()
+                    val hrvWithInvalid = Utils.calculateHRVWithInvalid()
+                    Log.i(appTAG, "HRV (Valid): $hrvValid, HRV (With Invalids): $hrvWithInvalid")
+
+                    if(hrvValid != 0.0 && hrvWithInvalid != 0.0) {
+                        hrvLast = hrvValid
+                        val formattedValidHRV = String.format("%.3f", hrvValid)
+                        val formattedInvalidHRV = String.format("%.3f", hrvWithInvalid)
+                        binding.txtHRV.text = formattedValidHRV
 
                         //// send data
-                        val data = SaveSensorDataRequest(sessionId, rmssd, heartRateData.hr, heartRateData.ibi, heartRateData.qIbi)
+                        val data = SaveSensorDataRequest(sessionId, hrvValid, hrvWithInvalid, heartRateData.hr, heartRateData.ibi, heartRateData.qIbi)
 
                         apiService.sendSensorData(data).enqueue(object : Callback<Void> {
                             override fun onResponse(call: Call<Void>, response: Response<Void>) {
-                                // handle the response
-                                println(response.message())
+                                Log.i(appTAG, response.message())
                             }
 
                             override fun onFailure(call: Call<Void>, t: Throwable) {
-                                // handle the failure
-                                println(t.message)
+                                Log.e(appTAG, t.message.toString())
                             }
                         })
 
                         nbOfValues++
                         if (nbOfValues == 120) {
-                            val refData = SetReferenceRequest(sessionId, rmssd)
+                            val refData = SetReferenceRequest(sessionId, hrvValid)
                             Toast.makeText(applicationContext, "Reference collected", Toast.LENGTH_LONG).show()
 
                             apiService.setReferenceValue(refData).enqueue(object : Callback<Void> {
                                 override fun onResponse(call: Call<Void>, response: Response<Void>) {
-                                    // handle the response
-                                    println(response.message())
+                                    Log.i(appTAG, response.message())
                                 }
 
                                 override fun onFailure(call: Call<Void>, t: Throwable) {
-                                    // handle the failure
-                                    println(t.message)
+                                    Log.e(appTAG, t.message.toString())
                                 }
                             })
                         }
@@ -154,13 +158,11 @@ class MainActivity : Activity() {
                 val dataToSave = SavePpgGreenDataRequest(sessionId, ppgGreenData.ppgValues)
                 apiService.sendPpgGreenData(dataToSave).enqueue(object : Callback<Void> {
                     override fun onResponse(call: Call<Void>, response: Response<Void>) {
-                        // handle the response
-                        println(response.message())
+                        Log.i(appTAG, response.message())
                     }
 
                     override fun onFailure(call: Call<Void>, t: Throwable) {
-                        // handle the failure
-                        println(t.message)
+                        Log.e(appTAG, t.message.toString())
                     }
                 })
             }
@@ -218,7 +220,7 @@ class MainActivity : Activity() {
                 runOnUiThread {
                     Toast.makeText(applicationContext, getString(R.string.ConnectionError), Toast.LENGTH_LONG).show()
                 }
-                Log.e(APP_TAG, "Could not connect to Health Tracking Service: ${e.message}")
+                Log.e(appTAG, "Could not connect to Health Tracking Service: ${e.message}")
             }
             finish()
         }
@@ -230,7 +232,7 @@ class MainActivity : Activity() {
             connectionManager = ConnectionManager(connectionObserver)
             connectionManager?.connect(applicationContext)
         } catch (t: Throwable) {
-            Log.e(APP_TAG, t.message!!)
+            Log.e(appTAG, t.message!!)
         }
     }
 
@@ -250,13 +252,11 @@ class MainActivity : Activity() {
             sent = true
             apiService.startSession(Utils.userId).enqueue(object : Callback<StartSessionResponse> {
                 override fun onResponse(call: Call<StartSessionResponse>, response: Response<StartSessionResponse>) {
-                    // handle the response
                     sessionId = response.body()!!.session_id
                 }
 
                 override fun onFailure(call: Call<StartSessionResponse>, t: Throwable) {
-                    // handle the failure
-                    println(t.message)
+                    Log.e(appTAG, t.message.toString())
                 }
             })
         }
@@ -315,6 +315,7 @@ class MainActivity : Activity() {
         val timeString = String.format("%02d:%02d", minutes, seconds)
         binding.txtTimeMainValue.text = timeString
         Utils.clearList()
+        Utils.clearListWithInvalid()
         binding.txtHRV.text = getString(R.string.HRVDefaultValue)
         binding.txtHeartRate.text = getString(R.string.HeartRateDefaultValue)
         resetSignal = true
@@ -323,13 +324,11 @@ class MainActivity : Activity() {
 
         apiService.endSession(sessionId).enqueue(object : Callback<StartSessionResponse> {
             override fun onResponse(call: Call<StartSessionResponse>, response: Response<StartSessionResponse>) {
-                // handle the response
-                println(response.body()?.session_id)
+                Log.i(appTAG, response.body()?.session_id.toString())
             }
 
             override fun onFailure(call: Call<StartSessionResponse>, t: Throwable) {
-                // handle the failure
-                println(t.message)
+                Log.e(appTAG, t.message.toString())
             }
         })
     }
@@ -375,7 +374,7 @@ class MainActivity : Activity() {
         if (ActivityCompat.checkSelfPermission(applicationContext, getString(R.string.BodySensors)) == PackageManager.PERMISSION_DENIED)
             requestPermissions(arrayOf(Manifest.permission.BODY_SENSORS), 0)
         if (!permissionGranted) {
-            Log.i(APP_TAG, "Could not get permissions. Terminating measurement")
+            Log.e(appTAG, "Could not get permissions. Terminating measurement")
             return true
         }
         if (!connected) {

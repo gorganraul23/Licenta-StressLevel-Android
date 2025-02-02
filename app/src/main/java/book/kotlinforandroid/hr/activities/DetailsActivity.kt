@@ -17,7 +17,7 @@ import book.kotlinforandroid.hr.tracker.TrackerDataObserver
 
 class DetailsActivity : Activity() {
 
-    private val APP_TAG = "DetailsActivity"
+    private val appTAG = "DetailsActivity"
     private lateinit var binding: ActivityDetailsBinding
 
     private var status = 0
@@ -76,9 +76,6 @@ class DetailsActivity : Activity() {
         }
 
         override fun onPpgGreenTrackerDataChanged(ppgGreenData: PpgData) {
-            runOnUiThread {
-
-            }
         }
 
         override fun onError(errorID: Int) {
@@ -89,15 +86,18 @@ class DetailsActivity : Activity() {
     }
 
     fun updateIbiList(ibiValue: Int, ibiQualityStatus: Int, hrStatus: Int) {
-        if (hrStatus == 1 && ibiQualityStatus == 0 && ibiValue != 0) {
-            Utils.updateIbiList(ibiValue)
+        if (hrStatus == 1 && ibiValue != 0) {
+            Utils.updateIbiListWithInvalid(ibiValue)
+            if(ibiQualityStatus == 0)
+                Utils.updateIbiList(ibiValue)
         }
     }
 
     fun updateHRV() {
-        val rmssd = Utils.calculateHRV()
-        hrvLast = rmssd
-        val formattedNumber = String.format("%.3f", rmssd)
+        val hrvValid = Utils.calculateHRV()
+        Utils.calculateHRVWithInvalid()
+        hrvLast = hrvValid
+        val formattedNumber = String.format("%.3f", hrvValid)
         binding.txtValueHRV.text = formattedNumber
     }
 
@@ -110,7 +110,7 @@ class DetailsActivity : Activity() {
             binding.txtIbi.text = hrData.ibi.toString()
             binding.txtIbiStatus.text = hrData.qIbi.toString()
             binding.txtIbiStatus.setTextColor(if (hrData.qIbi == 0) Color.WHITE else Color.RED)
-            Log.d(APP_TAG, "HR: " + hrData.hr.toString() + " HR_IBI: " + hrData.ibi.toString() + " (" + hrData.qIbi.toString() + ") ")
+            Log.d(appTAG, "HR: " + hrData.hr.toString() + " HR_IBI: " + hrData.ibi.toString() + " (" + hrData.qIbi.toString() + ") ")
         } else if (!resetSignal) {
             binding.txtHeartRate.text = heartRateDataLast.hr.toString()
             binding.txtHeartRateStatus.setTextColor(Color.RED)
@@ -129,7 +129,7 @@ class DetailsActivity : Activity() {
     }
 
     private fun setStatus(status: Int) {
-        Log.i(APP_TAG, "HR Status: $status")
+        Log.i(appTAG, "HR Status: $status")
         var stringId = R.string.DetailsStatusRunning
         when (status) {
             HeartRateStatus.HR_STATUS_STOPPED.status -> stringId = R.string.DetailsStatusStopped

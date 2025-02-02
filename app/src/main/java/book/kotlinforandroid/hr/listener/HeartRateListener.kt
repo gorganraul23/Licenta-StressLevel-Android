@@ -10,7 +10,7 @@ import com.samsung.android.service.health.tracking.data.ValueKey
 
 class HeartRateListener : BaseListener() {
 
-    private val APP_TAG = "HeartRateListener"
+    private val appTAG = "HeartRateListener"
 
     init {
         val trackerEventListener = object : HealthTracker.TrackerEventListener {
@@ -21,11 +21,11 @@ class HeartRateListener : BaseListener() {
             }
 
             override fun onFlushCompleted() {
-                Log.i(APP_TAG, " onFlushCompleted called")
+                Log.i(appTAG, " onFlushCompleted called")
             }
 
             override fun onError(trackerError: HealthTracker.TrackerError) {
-                Log.e(APP_TAG, " onError called: $trackerError")
+                Log.e(appTAG, " onError called: $trackerError")
                 setHandlerRunning(false)
                 if (trackerError == HealthTracker.TrackerError.PERMISSION_ERROR) {
                     TrackerDataNotifier.getInstance().notifyError(R.string.NoPermission)
@@ -50,7 +50,7 @@ class HeartRateListener : BaseListener() {
         hrData.qIbi = hrIbi shr HeartRateData.IBI_QUALITY_SHIFT and HeartRateData.IBI_MASK
         hrData.ibi = hrIbi and HeartRateData.IBI_QUALITY_MASK
         TrackerDataNotifier.getInstance().notifyHeartRateTrackerObservers(hrData)
-        Log.d(APP_TAG, dataPoint.toString())
+        Log.d(appTAG, dataPoint.toString())
     }
 
 }

@@ -8,7 +8,7 @@ import com.samsung.android.service.health.tracking.data.DataPoint
 
 class PpgRedListener : BaseListener() {
 
-    private val APP_TAG = "PpgRedListener"
+    private val appTAG = "PpgRedListener"
 
     init {
         val trackerEventListener = object : HealthTracker.TrackerEventListener {
@@ -17,11 +17,11 @@ class PpgRedListener : BaseListener() {
             }
 
             override fun onFlushCompleted() {
-                Log.i(APP_TAG, " onFlushCompleted called")
+                Log.i(appTAG, " onFlushCompleted called")
             }
 
             override fun onError(trackerError: HealthTracker.TrackerError) {
-                Log.e(APP_TAG, " onError called: $trackerError")
+                Log.e(appTAG, " onError called: $trackerError")
                 setHandlerRunning(false)
                 if (trackerError == HealthTracker.TrackerError.PERMISSION_ERROR) {
                     TrackerDataNotifier.getInstance().notifyError(R.string.NoPermission)
