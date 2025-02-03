@@ -48,7 +48,9 @@ class HeartRateListener : BaseListener() {
 
         val hrIbi = dataPoint.getValue(ValueKey.HeartRateSet.HEART_RATE_IBI)
         hrData.qIbi = hrIbi shr HeartRateData.IBI_QUALITY_SHIFT and HeartRateData.IBI_MASK
+        println("QIbi:${hrData.qIbi}")
         hrData.ibi = hrIbi and HeartRateData.IBI_QUALITY_MASK
+        println("Calculated IBI:${hrData.ibi}")
         TrackerDataNotifier.getInstance().notifyHeartRateTrackerObservers(hrData)
         Log.d(appTAG, dataPoint.toString())
     }

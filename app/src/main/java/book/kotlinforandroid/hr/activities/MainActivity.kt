@@ -87,6 +87,10 @@ class MainActivity : Activity() {
         }
     }
 
+    private fun isIBINormal(ibi: Int): Boolean {
+        return ibi in 301..1999
+    }
+
     ///// tracker
 
     val trackerDataObserver: TrackerDataObserver = object : TrackerDataObserver {
@@ -102,7 +106,7 @@ class MainActivity : Activity() {
                 }
 
                 // heartRateData.hrStatus == 1 && heartRateData.qIbi == 0 &&
-                if (heartRateData.ibi != 0) {
+                if (isIBINormal(heartRateData.ibi)) {
 
                     Utils.updateIbiListWithInvalid(heartRateData.ibi) // stores all IBIs (valid + invalid)
                     if (heartRateData.qIbi == 0) {
