@@ -52,6 +52,10 @@ object Utils {
         ibiListWithInvalid.clear()
     }
 
+    fun isIBINormal(ibi: Int): Boolean {
+        return ibi in 301..1999
+    }
+
     fun calculateHRV(): Double {
         val squaredDifferences = mutableListOf<Double>()
 

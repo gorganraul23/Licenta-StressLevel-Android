@@ -8,6 +8,7 @@ import android.view.WindowManager
 import android.widget.Toast
 import book.kotlinforandroid.hr.R
 import book.kotlinforandroid.hr.Utils
+import book.kotlinforandroid.hr.Utils.isIBINormal
 import book.kotlinforandroid.hr.databinding.ActivityDetailsBinding
 import book.kotlinforandroid.hr.model.HeartRateData
 import book.kotlinforandroid.hr.model.HeartRateStatus
@@ -86,7 +87,7 @@ class DetailsActivity : Activity() {
     }
 
     fun updateIbiList(ibiValue: Int, ibiQualityStatus: Int, hrStatus: Int) {
-        if (hrStatus == 1 && ibiValue != 0) {
+        if (hrStatus == 1 && isIBINormal(ibiValue)) {
             Utils.updateIbiListWithInvalid(ibiValue)
             if(ibiQualityStatus == 0)
                 Utils.updateIbiList(ibiValue)
@@ -95,9 +96,11 @@ class DetailsActivity : Activity() {
 
     fun updateHRV() {
         val hrvValid = Utils.calculateHRV()
-        Utils.calculateHRVWithInvalid()
-        hrvLast = hrvValid
-        val formattedNumber = String.format("%.3f", hrvValid)
+        val hrvWithInvalid = Utils.calculateHRVWithInvalid()
+        //hrvLast = hrvValid
+        hrvLast = hrvWithInvalid
+        //val formattedNumber = String.format("%.3f", hrvValid)
+        val formattedNumber = String.format("%.3f", hrvWithInvalid)
         binding.txtValueHRV.text = formattedNumber
     }
 

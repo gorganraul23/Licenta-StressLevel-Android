@@ -15,6 +15,7 @@ import book.kotlinforandroid.hr.ApiService
 import book.kotlinforandroid.hr.R
 import book.kotlinforandroid.hr.RetrofitInstance
 import book.kotlinforandroid.hr.Utils
+import book.kotlinforandroid.hr.Utils.isIBINormal
 import book.kotlinforandroid.hr.Utils.nbOfValues
 import book.kotlinforandroid.hr.connection.ConnectionManager
 import book.kotlinforandroid.hr.connection.ConnectionObserver
@@ -33,7 +34,6 @@ import book.kotlinforandroid.hr.model.StartSessionResponse
 import book.kotlinforandroid.hr.tracker.TrackerDataNotifier
 import book.kotlinforandroid.hr.tracker.TrackerDataObserver
 import com.samsung.android.service.health.tracking.HealthTrackerException
-import org.checkerframework.checker.units.qual.t
 import retrofit2.Call
 import retrofit2.Callback
 import retrofit2.Response
@@ -87,10 +87,6 @@ class MainActivity : Activity() {
         }
     }
 
-    private fun isIBINormal(ibi: Int): Boolean {
-        return ibi in 301..1999
-    }
-
     ///// tracker
 
     val trackerDataObserver: TrackerDataObserver = object : TrackerDataObserver {
@@ -119,10 +115,12 @@ class MainActivity : Activity() {
                     Log.i(appTAG, "HRV (Valid): $hrvValid, HRV (With Invalids): $hrvWithInvalid")
 
                     if(hrvValid != 0.0 && hrvWithInvalid != 0.0) {
-                        hrvLast = hrvValid
+                        // hrvLast = hrvValid
+                        hrvLast = hrvWithInvalid
                         val formattedValidHRV = String.format("%.3f", hrvValid)
                         val formattedInvalidHRV = String.format("%.3f", hrvWithInvalid)
-                        binding.txtHRV.text = formattedValidHRV
+                        // binding.txtHRV.text = formattedValidHRV
+                        binding.txtHRV.text = formattedInvalidHRV
 
                         //// send data
                         val data = SaveSensorDataRequest(sessionId, hrvValid, hrvWithInvalid, heartRateData.hr, heartRateData.ibi, heartRateData.qIbi)
@@ -139,7 +137,8 @@ class MainActivity : Activity() {
 
                         nbOfValues++
                         if (nbOfValues == 120) {
-                            val refData = SetReferenceRequest(sessionId, hrvValid)
+                            // val refData = SetReferenceRequest(sessionId, hrvValid)
+                            val refData = SetReferenceRequest(sessionId, hrvWithInvalid)
                             Toast.makeText(applicationContext, "Reference collected", Toast.LENGTH_LONG).show()
 
                             apiService.setReferenceValue(refData).enqueue(object : Callback<Void> {
