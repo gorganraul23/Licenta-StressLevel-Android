@@ -43,16 +43,19 @@ class HeartRateListener : BaseListener() {
     fun readValuesFromDataPoint(dataPoint: DataPoint) {
         val hrData = HeartRateData()
 
-        hrData.hrStatus = dataPoint.getValue(ValueKey.HeartRateSet.STATUS)
-        hrData.hr = dataPoint.getValue(ValueKey.HeartRateSet.HEART_RATE)
+        hrData.hrStatus = dataPoint.getValue(ValueKey.HeartRateSet.HEART_RATE_STATUS) // HR status
+        hrData.hr = dataPoint.getValue(ValueKey.HeartRateSet.HEART_RATE)  // HR
+        var ibiOld = dataPoint.getValue(ValueKey.HeartRateSet.HEART_RATE_IBI)
+        ibiOld = ibiOld and HeartRateData.IBI_QUALITY_MASK
+        hrData.ibiOld = ibiOld // old ibi
 
-        val hrIbi = dataPoint.getValue(ValueKey.HeartRateSet.HEART_RATE_IBI)
-        hrData.qIbi = hrIbi shr HeartRateData.IBI_QUALITY_SHIFT and HeartRateData.IBI_MASK
-        println("QIbi:${hrData.qIbi}")
-        hrData.ibi = hrIbi and HeartRateData.IBI_QUALITY_MASK
-        println("Calculated IBI:${hrData.ibi}")
+        hrData.ibiList = dataPoint.getValue(ValueKey.HeartRateSet.IBI_LIST) // ibi list
+        hrData.qIbiList = dataPoint.getValue(ValueKey.HeartRateSet.IBI_STATUS_LIST) // ibi status list
+
+        Log.i(appTAG, "Listener: ibiOld:${hrData.ibiOld}, IBI List: ${hrData.ibiList}, IBI Status List: ${hrData.qIbiList}")
+
+        // Notify observers
         TrackerDataNotifier.getInstance().notifyHeartRateTrackerObservers(hrData)
-        Log.d(appTAG, dataPoint.toString())
     }
 
 }

@@ -40,8 +40,9 @@
     <string name="ExtraHr">Hr</string>
     <string name="ExtraHrStatus">HrStatus</string>
     <string name="ExtraIbi">Ibi</string>
+    <string name="ExtraIbiOld">IbiOld</string>
     <string name="ExtraQualityIbi">QualityIbi</string>
-    <string name="DetailsHRVLabel">Actual HRV</string>
+    <string name="HRVInvalid">HRV Invalid</string>
     <string name="ExtraIsMeasuring">Measuring</string>
     <string name="ExtraStarted">Started</string>
     <string name="ExtraReset">ResetSignal</string>

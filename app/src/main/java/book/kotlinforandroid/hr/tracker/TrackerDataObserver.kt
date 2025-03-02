@@ -9,5 +9,9 @@ interface TrackerDataObserver {
 
     fun onPpgGreenTrackerDataChanged(ppgGreenData: PpgData)
 
+    fun onPpgRedTrackerDataChanged(ppgRedData: PpgData)
+
+    fun onPpgIrTrackerDataChanged(ppgIrData: PpgData)
+
     fun onError(errorID: Int)
 }

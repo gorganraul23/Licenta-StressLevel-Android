@@ -27,7 +27,7 @@ import book.kotlinforandroid.hr.listener.PpgRedListener
 import book.kotlinforandroid.hr.model.HeartRateData
 import book.kotlinforandroid.hr.model.HeartRateStatus
 import book.kotlinforandroid.hr.model.PpgData
-import book.kotlinforandroid.hr.model.SavePpgGreenDataRequest
+import book.kotlinforandroid.hr.model.SavePpgDataRequest
 import book.kotlinforandroid.hr.model.SaveSensorDataRequest
 import book.kotlinforandroid.hr.model.SetReferenceRequest
 import book.kotlinforandroid.hr.model.StartSessionResponse
@@ -57,7 +57,8 @@ class MainActivity : Activity() {
     private var startedOnce = false
     private var resetSignal = false
     private var heartRateDataLast = HeartRateData()
-    private var hrvLast = 0.0
+    private var hrvLastValid = 0.0
+    private var hrvLastInvalid = 0.0
 
     private var sent = false;
     private var sessionId = 0;
@@ -90,10 +91,11 @@ class MainActivity : Activity() {
     ///// tracker
 
     val trackerDataObserver: TrackerDataObserver = object : TrackerDataObserver {
+        // heart rate tracker
         override fun onHeartRateTrackerDataChanged(heartRateData: HeartRateData) {
             runOnUiThread {
                 heartRateDataLast = heartRateData
-                Log.i(appTAG, "Values: " + Utils.getIbiList().size + ", qIbi: " + heartRateData.qIbi + ", hr: " + heartRateData.hr + ", ibi: " + heartRateData.ibi)
+                Log.i(appTAG, "Main: " + Utils.getIbiList().size)
 
                 if (heartRateData.hrStatus == HeartRateStatus.HR_STATUS_FIND_HR.status) {
                     binding.txtHeartRate.text = heartRateData.hr.toString()
@@ -101,29 +103,42 @@ class MainActivity : Activity() {
                     binding.txtHeartRate.text = getString(R.string.HeartRateDefaultValue)
                 }
 
-                // heartRateData.hrStatus == 1 && heartRateData.qIbi == 0 &&
-                if (isIBINormal(heartRateData.ibi)) {
+                if (heartRateData.ibiList.isNotEmpty()) {
 
-                    Utils.updateIbiListWithInvalid(heartRateData.ibi) // stores all IBIs (valid + invalid)
-                    if (heartRateData.qIbi == 0) {
-                        Utils.updateIbiList(heartRateData.ibi) // stores only valid IBIs
+                    heartRateData.ibiList.forEach { ibiValue ->
+                        if(isIBINormal(ibiValue))
+                            Utils.updateIbiListWithInvalid(ibiValue)
+                    } // stores all IBIs (valid + invalid)
+
+                    heartRateData.ibiList.forEachIndexed { index, ibiValue ->
+                        if (heartRateData.qIbiList.getOrNull(index) == 0 && isIBINormal(ibiValue)) {
+                            Utils.updateIbiList(ibiValue)
+                        }
                     }
 
-                    //val rmssd = Utils.calculateHRV()
                     val hrvValid = Utils.calculateHRV()
                     val hrvWithInvalid = Utils.calculateHRVWithInvalid()
                     Log.i(appTAG, "HRV (Valid): $hrvValid, HRV (With Invalids): $hrvWithInvalid")
 
                     if(hrvValid != 0.0 && hrvWithInvalid != 0.0) {
-                        // hrvLast = hrvValid
-                        hrvLast = hrvWithInvalid
+                        hrvLastValid = hrvValid
+                        hrvLastInvalid = hrvWithInvalid
                         val formattedValidHRV = String.format("%.3f", hrvValid)
                         val formattedInvalidHRV = String.format("%.3f", hrvWithInvalid)
-                        // binding.txtHRV.text = formattedValidHRV
-                        binding.txtHRV.text = formattedInvalidHRV
+                        binding.txtHRV.text = formattedValidHRV
+                        //binding.txtHRV.text = formattedInvalidHRV
 
                         //// send data
-                        val data = SaveSensorDataRequest(sessionId, hrvValid, hrvWithInvalid, heartRateData.hr, heartRateData.ibi, heartRateData.qIbi)
+                        //val data = SaveSensorDataRequest(sessionId, hrvValid, hrvWithInvalid, heartRateData.hr, heartRateData.ibi, heartRateData.qIbi)
+                        val data = SaveSensorDataRequest(
+                            sessionId,
+                            hrvValid,
+                            hrvWithInvalid,
+                            heartRateData.hr,
+                            heartRateData.ibiOld,
+                            heartRateData.ibiList,
+                            heartRateData.qIbiList
+                        )
 
                         apiService.sendSensorData(data).enqueue(object : Callback<Void> {
                             override fun onResponse(call: Call<Void>, response: Response<Void>) {
@@ -137,8 +152,8 @@ class MainActivity : Activity() {
 
                         nbOfValues++
                         if (nbOfValues == 120) {
-                            // val refData = SetReferenceRequest(sessionId, hrvValid)
-                            val refData = SetReferenceRequest(sessionId, hrvWithInvalid)
+                            val refData = SetReferenceRequest(sessionId, hrvValid)
+                            //val refData = SetReferenceRequest(sessionId, hrvWithInvalid)
                             Toast.makeText(applicationContext, "Reference collected", Toast.LENGTH_LONG).show()
 
                             apiService.setReferenceValue(refData).enqueue(object : Callback<Void> {
@@ -156,14 +171,46 @@ class MainActivity : Activity() {
             }
         }
 
+        // PPG Green tracker
         override fun onPpgGreenTrackerDataChanged(ppgGreenData: PpgData) {
             runOnUiThread {
-                val dataToSave = SavePpgGreenDataRequest(sessionId, ppgGreenData.ppgValues)
+                val dataToSave = SavePpgDataRequest(sessionId, ppgGreenData.ppgValues)
                 apiService.sendPpgGreenData(dataToSave).enqueue(object : Callback<Void> {
                     override fun onResponse(call: Call<Void>, response: Response<Void>) {
                         Log.i(appTAG, response.message())
                     }
+                    override fun onFailure(call: Call<Void>, t: Throwable) {
+                        Log.e(appTAG, t.message.toString())
+                    }
+                })
+            }
+        }
 
+        // PPG Red tracker
+        override fun onPpgRedTrackerDataChanged(ppgRedData: PpgData) {
+            runOnUiThread {
+                val dataToSave = SavePpgDataRequest(sessionId, ppgRedData.ppgValues)
+                println(dataToSave.ppgValues.size)
+                apiService.sendPpgRedData(dataToSave).enqueue(object : Callback<Void> {
+                    override fun onResponse(call: Call<Void>, response: Response<Void>) {
+                        Log.i(appTAG, response.message())
+                    }
+                    override fun onFailure(call: Call<Void>, t: Throwable) {
+                        Log.e(appTAG, t.message.toString())
+                    }
+                })
+            }
+        }
+
+        // PPG Ir tracker
+        override fun onPpgIrTrackerDataChanged(ppgIrData: PpgData) {
+            runOnUiThread {
+                val dataToSave = SavePpgDataRequest(sessionId, ppgIrData.ppgValues)
+                println(dataToSave.ppgValues.size)
+                apiService.sendPpgIrData(dataToSave).enqueue(object : Callback<Void> {
+                    override fun onResponse(call: Call<Void>, response: Response<Void>) {
+                        Log.i(appTAG, response.message())
+                    }
                     override fun onFailure(call: Call<Void>, t: Throwable) {
                         Log.e(appTAG, t.message.toString())
                     }
@@ -344,8 +391,9 @@ class MainActivity : Activity() {
         val intent = Intent(this, DetailsActivity::class.java)
         intent.putExtra(getString(R.string.ExtraHr), heartRateDataLast.hr)
         intent.putExtra(getString(R.string.ExtraHrStatus), heartRateDataLast.hrStatus)
-        intent.putExtra(getString(R.string.ExtraIbi), heartRateDataLast.ibi)
-        intent.putExtra(getString(R.string.ExtraQualityIbi), heartRateDataLast.qIbi)
+        intent.putExtra(getString(R.string.ExtraIbiOld), heartRateDataLast.ibiOld)
+        intent.putIntegerArrayListExtra(getString(R.string.ExtraIbi), ArrayList(heartRateDataLast.ibiList))
+        intent.putIntegerArrayListExtra(getString(R.string.ExtraQualityIbi), ArrayList(heartRateDataLast.qIbiList))
         intent.putExtra(getString(R.string.ExtraIsMeasuring), isMeasuring)
         intent.putExtra(getString(R.string.ExtraStarted), startedOnce)
         intent.putExtra(getString(R.string.ExtraReset), resetSignal)

@@ -9,6 +9,7 @@ import com.samsung.android.service.health.tracking.data.DataPoint
 import com.samsung.android.service.health.tracking.data.ValueKey
 
 class PpgGreenListener : BaseListener() {
+
     private val appTAG = "PpgGreenListener"
     private val ppgValues = mutableListOf<Int>()
 

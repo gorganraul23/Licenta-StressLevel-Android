@@ -1,5 +1,6 @@
 package book.kotlinforandroid.hr.activities
 
+import android.annotation.SuppressLint
 import android.app.Activity
 import android.graphics.Color
 import android.os.Bundle
@@ -23,7 +24,8 @@ class DetailsActivity : Activity() {
 
     private var status = 0
     private var heartRateDataLast = HeartRateData()
-    private var hrvLast = 0.0
+    private var hrvLastValid = 0.0
+    private var hrvLastInvalid = 0.0
     private var resetSignal = false
 
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -35,7 +37,8 @@ class DetailsActivity : Activity() {
         // keep screen on
         window.addFlags(WindowManager.LayoutParams.FLAG_KEEP_SCREEN_ON);
 
-        binding.txtValueHRV.text = getString(R.string.HRVDefaultValue)
+        binding.txtValueHRVValid.text = getString(R.string.HRVDefaultValue)
+        binding.txtValueHRVInvalid.text = getString(R.string.HRVDefaultValue)
 
         //// get data
         val intent = intent
@@ -55,11 +58,12 @@ class DetailsActivity : Activity() {
 
         //// get values
         val hr = intent.getIntExtra(getString(R.string.ExtraHr), 0)
-        val ibi = intent.getIntExtra(getString(R.string.ExtraIbi), 0)
-        val qIbi = intent.getIntExtra(getString(R.string.ExtraQualityIbi), 1)
+        val ibiOld = intent.getIntExtra(getString(R.string.ExtraIbiOld), 0)
+        val ibi = intent.getIntegerArrayListExtra(getString(R.string.ExtraIbi)) ?: arrayListOf()
+        val qIbi = intent.getIntegerArrayListExtra(getString(R.string.ExtraQualityIbi)) ?: arrayListOf()
 
-        val hrData = HeartRateData(status, hr, ibi, qIbi)
-        heartRateDataLast = HeartRateData(status, hr, ibi, qIbi)
+        val hrData = HeartRateData(status, hr, ibiOld, ibi, qIbi)
+        heartRateDataLast = HeartRateData(status, hr, ibiOld, ibi, qIbi)
         updateUi(hrData)
         updateHRV()
 
@@ -70,13 +74,27 @@ class DetailsActivity : Activity() {
     private val trackerDataObserver: TrackerDataObserver = object : TrackerDataObserver {
         override fun onHeartRateTrackerDataChanged(heartRateData: HeartRateData) {
             runOnUiThread {
-                updateIbiList(heartRateData.ibi, heartRateData.qIbi, heartRateData.hrStatus)
-                updateUi(heartRateData)
-                updateHRV()
+                if(heartRateData.ibiList.isNotEmpty()) {
+                    heartRateData.ibiList.forEach { ibiValue ->
+                        Utils.updateIbiListWithInvalid(ibiValue)
+                    } // stores all IBIs (valid + invalid)
+
+                    heartRateData.ibiList.forEachIndexed { index, ibiValue ->
+                        if (heartRateData.qIbiList.getOrNull(index) == 0) {
+                            Utils.updateIbiList(ibiValue)
+                        }
+                    }
+                    updateUi(heartRateData)
+                    updateHRV()
+                }
+
             }
         }
 
         override fun onPpgGreenTrackerDataChanged(ppgGreenData: PpgData) {
+        }
+
+        override fun onPpgRedTrackerDataChanged(ppgRedData: PpgData) {
         }
 
         override fun onError(errorID: Int) {
@@ -86,48 +104,57 @@ class DetailsActivity : Activity() {
         }
     }
 
-    fun updateIbiList(ibiValue: Int, ibiQualityStatus: Int, hrStatus: Int) {
-        if (hrStatus == 1 && isIBINormal(ibiValue)) {
-            Utils.updateIbiListWithInvalid(ibiValue)
-            if(ibiQualityStatus == 0)
-                Utils.updateIbiList(ibiValue)
-        }
-    }
-
     fun updateHRV() {
-        val hrvValid = Utils.calculateHRV()
-        val hrvWithInvalid = Utils.calculateHRVWithInvalid()
-        //hrvLast = hrvValid
-        hrvLast = hrvWithInvalid
-        //val formattedNumber = String.format("%.3f", hrvValid)
-        val formattedNumber = String.format("%.3f", hrvWithInvalid)
-        binding.txtValueHRV.text = formattedNumber
+        hrvLastValid = Utils.calculateHRV()
+        hrvLastInvalid = Utils.calculateHRVWithInvalid()
+        val formattedValidNumber = String.format("%.3f", hrvLastValid)
+        val formattedInvalidNumber = String.format("%.3f", hrvLastInvalid)
+        binding.txtValueHRVValid.text = formattedValidNumber
+        binding.txtValueHRVInvalid.text = formattedInvalidNumber
     }
 
+    @SuppressLint("SetTextI18n")
     private fun updateUi(hrData: HeartRateData) {
+        Log.d(appTAG, "Details: $hrData")
         binding.txtHeartRateStatus.text = hrData.hrStatus.toString()
         setStatus(hrData.hrStatus)
         if (hrData.hrStatus == HeartRateStatus.HR_STATUS_FIND_HR.status || hrData.hrStatus == HeartRateStatus.HR_STATUS_CALCULATING.status) {
             binding.txtHeartRate.text = hrData.hr.toString()
             binding.txtHeartRateStatus.setTextColor(Color.WHITE)
-            binding.txtIbi.text = hrData.ibi.toString()
-            binding.txtIbiStatus.text = hrData.qIbi.toString()
-            binding.txtIbiStatus.setTextColor(if (hrData.qIbi == 0) Color.WHITE else Color.RED)
-            Log.d(appTAG, "HR: " + hrData.hr.toString() + " HR_IBI: " + hrData.ibi.toString() + " (" + hrData.qIbi.toString() + ") ")
+
+            //binding.txtIbi.text = hrData.ibiList.get(0).toString()
+            if(hrData.ibiList.isNotEmpty())
+                binding.txtIbi.text = hrData.ibiList.joinToString(", ")
+            else
+                binding.txtIbi.text = "0"
+
+            //binding.txtIbiStatus.text = hrData.qIbiList[0].toString()
+            if(hrData.qIbiList.isNotEmpty()) {
+                binding.txtIbiStatus.text = hrData.qIbiList.joinToString(", ")
+                binding.txtIbiStatus.setTextColor(if (hrData.qIbiList[0] == 0) Color.WHITE else Color.RED)
+            }
+            else
+                binding.txtIbiStatus.text = "0"
         } else if (!resetSignal) {
             binding.txtHeartRate.text = heartRateDataLast.hr.toString()
             binding.txtHeartRateStatus.setTextColor(Color.RED)
-            binding.txtIbi.text = heartRateDataLast.ibi.toString()
+            //binding.txtIbi.text = heartRateDataLast.ibiList[0].toString()
+            if(hrData.ibiList.isNotEmpty())
+                binding.txtIbi.text = hrData.ibiList.joinToString(", ")
+            else
+                binding.txtIbi.text = "0"
             binding.txtIbiStatus.text = getString(R.string.IbiStatusDefaultValue)
             binding.txtIbiStatus.setTextColor(Color.RED)
-            binding.txtValueHRV.text = hrvLast.toString()
+            binding.txtValueHRVValid.text = hrvLastValid.toString()
+            binding.txtValueHRVInvalid.text = hrvLastInvalid.toString()
         } else {
             binding.txtHeartRate.text = getString(R.string.HeartRateDefaultValue)
             binding.txtHeartRateStatus.setTextColor(Color.RED)
             binding.txtIbi.text = getString(R.string.IbiDefaultValue)
             binding.txtIbiStatus.text = getString(R.string.IbiStatusDefaultValue)
             binding.txtIbiStatus.setTextColor(Color.RED)
-            binding.txtValueHRV.text = hrvLast.toString()
+            binding.txtValueHRVValid.text = hrvLastValid.toString()
+            binding.txtValueHRVInvalid.text = hrvLastInvalid.toString()
         }
     }
 

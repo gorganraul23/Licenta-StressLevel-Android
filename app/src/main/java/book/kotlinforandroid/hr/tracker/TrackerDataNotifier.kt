@@ -40,6 +40,18 @@ class TrackerDataNotifier private constructor() {
         })
     }
 
+    fun notifyPpgRedTrackerObservers(ppgRedData: PpgData?) {
+        observers.forEach(Consumer { observer: TrackerDataObserver ->
+            observer.onPpgRedTrackerDataChanged(ppgRedData!!)
+        })
+    }
+
+    fun notifyPpgIrTrackerObservers(ppgIrData: PpgData?) {
+        observers.forEach(Consumer { observer: TrackerDataObserver ->
+            observer.onPpgIrTrackerDataChanged(ppgIrData!!)
+        })
+    }
+
     fun notifyError(errorId: Int) {
         observers.forEach(Consumer { observer: TrackerDataObserver ->
             observer.onError(errorId)
