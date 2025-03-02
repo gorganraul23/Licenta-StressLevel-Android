@@ -10,6 +10,7 @@ import book.kotlinforandroid.hr.listener.HeartRateListener
 import book.kotlinforandroid.hr.listener.PpgGreenListener
 import book.kotlinforandroid.hr.listener.PpgIrListener
 import book.kotlinforandroid.hr.listener.PpgRedListener
+import book.kotlinforandroid.hr.listener.SkinTemperatureListener
 import com.samsung.android.service.health.tracking.ConnectionListener
 import com.samsung.android.service.health.tracking.HealthTracker
 import com.samsung.android.service.health.tracking.HealthTrackerException
@@ -33,6 +34,9 @@ class ConnectionManager(observer: ConnectionObserver) {
             }
             if (!isPPGAvailable(healthTrackingService)) {
                 Log.i(APP_TAG, "Device does not support PPG tracking")
+            }
+            if (!isSkinTemperatureAvailable(healthTrackingService)) {
+                Log.i(APP_TAG, "Device does not support Skin Temperature tracking")
             }
         }
 
@@ -83,12 +87,23 @@ class ConnectionManager(observer: ConnectionObserver) {
         setHandlerForBaseListener(ppgGreenListener)
     }
 
+    fun initSkinTemperature(skinTemperatureListener: SkinTemperatureListener) {
+        val skinTemperatureTracker: HealthTracker = healthTrackingService!!.getHealthTracker(HealthTrackerType.SKIN_TEMPERATURE)
+        skinTemperatureListener.setHealthTracker(skinTemperatureTracker)
+
+        setHandlerForBaseListener(skinTemperatureListener)
+    }
+
     private fun setHandlerForBaseListener(baseListener: BaseListener) {
         baseListener.setHandler(Handler(Looper.getMainLooper()))
     }
 
     fun isHeartRateAvailable(healthTrackingService: HealthTrackingService?): Boolean {
         return healthTrackingService!!.trackingCapability.supportHealthTrackerTypes.contains(HealthTrackerType.HEART_RATE)
+    }
+
+    fun isSkinTemperatureAvailable(healthTrackingService: HealthTrackingService?): Boolean {
+        return healthTrackingService!!.trackingCapability.supportHealthTrackerTypes.contains(HealthTrackerType.SKIN_TEMPERATURE)
     }
 
     fun isPPGAvailable(healthTrackingService: HealthTrackingService?): Boolean {

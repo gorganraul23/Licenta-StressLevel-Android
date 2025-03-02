@@ -2,27 +2,27 @@ package book.kotlinforandroid.hr.listener
 
 import android.util.Log
 import book.kotlinforandroid.hr.R
-import book.kotlinforandroid.hr.model.PpgData
+import book.kotlinforandroid.hr.model.SkinTemperatureData
 import book.kotlinforandroid.hr.tracker.TrackerDataNotifier
 import com.samsung.android.service.health.tracking.HealthTracker
 import com.samsung.android.service.health.tracking.data.DataPoint
 import com.samsung.android.service.health.tracking.data.ValueKey
 
-class PpgIrListener : BaseListener() {
+class SkinTemperatureListener : BaseListener() {
 
-    private val appTAG = "PpgIrListener"
-    private val ppgValues = mutableListOf<Int>()
+    private val appTAG = "SkinTemperatureListener"
 
     init {
         val trackerEventListener = object : HealthTracker.TrackerEventListener {
             override fun onDataReceived(list: List<DataPoint>) {
                 for (dataPoint in list) {
-                    val ppgValue = dataPoint.getValue(ValueKey.PpgIrSet.PPG_IR)
-                    ppgValues.add(ppgValue)
+                    val objectTemperature = dataPoint.getValue(ValueKey.SkinTemperatureSet.OBJECT_TEMPERATURE)
+                    val ambientTemperature = dataPoint.getValue(ValueKey.SkinTemperatureSet.AMBIENT_TEMPERATURE)
+                    val status = dataPoint.getValue(ValueKey.SkinTemperatureSet.STATUS)
+                    //println("Skin Temperature - object: ${objectTemperature}, ambient: $ambientTemperature, status: $status");
+                    sendTemperatureData(objectTemperature, ambientTemperature, status)
                 }
-                if (ppgValues.size >= 100) {
-                    sendPPGData()
-                }
+
             }
 
             override fun onFlushCompleted() {
@@ -44,10 +44,8 @@ class PpgIrListener : BaseListener() {
         setTrackerEventListener(trackerEventListener)
     }
 
-    private fun sendPPGData() {
-        val request = PpgData(ArrayList(ppgValues))
-        TrackerDataNotifier.getInstance().notifyPpgIrTrackerObservers(request)
-
-        ppgValues.clear()
+    private fun sendTemperatureData(objectTemperature: Float, ambientTemperature: Float, status: Int) {
+        val request = SkinTemperatureData(objectTemperature, ambientTemperature, status)
+        TrackerDataNotifier.getInstance().notifySkinTemperatureTrackerObservers(request)
     }
 }

@@ -24,12 +24,15 @@ import book.kotlinforandroid.hr.listener.HeartRateListener
 import book.kotlinforandroid.hr.listener.PpgGreenListener
 import book.kotlinforandroid.hr.listener.PpgIrListener
 import book.kotlinforandroid.hr.listener.PpgRedListener
+import book.kotlinforandroid.hr.listener.SkinTemperatureListener
 import book.kotlinforandroid.hr.model.HeartRateData
 import book.kotlinforandroid.hr.model.HeartRateStatus
 import book.kotlinforandroid.hr.model.PpgData
 import book.kotlinforandroid.hr.model.SavePpgDataRequest
 import book.kotlinforandroid.hr.model.SaveSensorDataRequest
+import book.kotlinforandroid.hr.model.SaveSkinTemperatureDataRequest
 import book.kotlinforandroid.hr.model.SetReferenceRequest
+import book.kotlinforandroid.hr.model.SkinTemperatureData
 import book.kotlinforandroid.hr.model.StartSessionResponse
 import book.kotlinforandroid.hr.tracker.TrackerDataNotifier
 import book.kotlinforandroid.hr.tracker.TrackerDataObserver
@@ -52,6 +55,7 @@ class MainActivity : Activity() {
     private var ppgRedListener: PpgRedListener? = null
     private var ppgIrListener: PpgIrListener? = null
     private var ppgGreenListener: PpgGreenListener? = null
+    private var skinTemperatureListener: SkinTemperatureListener? = null
     private var connected = false
     private var isMeasuring = false
     private var startedOnce = false
@@ -129,7 +133,6 @@ class MainActivity : Activity() {
                         //binding.txtHRV.text = formattedInvalidHRV
 
                         //// send data
-                        //val data = SaveSensorDataRequest(sessionId, hrvValid, hrvWithInvalid, heartRateData.hr, heartRateData.ibi, heartRateData.qIbi)
                         val data = SaveSensorDataRequest(
                             sessionId,
                             hrvValid,
@@ -142,7 +145,7 @@ class MainActivity : Activity() {
 
                         apiService.sendSensorData(data).enqueue(object : Callback<Void> {
                             override fun onResponse(call: Call<Void>, response: Response<Void>) {
-                                Log.i(appTAG, response.message())
+                                //Log.i(appTAG, response.message())
                             }
 
                             override fun onFailure(call: Call<Void>, t: Throwable) {
@@ -177,7 +180,7 @@ class MainActivity : Activity() {
                 val dataToSave = SavePpgDataRequest(sessionId, ppgGreenData.ppgValues)
                 apiService.sendPpgGreenData(dataToSave).enqueue(object : Callback<Void> {
                     override fun onResponse(call: Call<Void>, response: Response<Void>) {
-                        Log.i(appTAG, response.message())
+                        //Log.i(appTAG, response.message())
                     }
                     override fun onFailure(call: Call<Void>, t: Throwable) {
                         Log.e(appTAG, t.message.toString())
@@ -190,10 +193,10 @@ class MainActivity : Activity() {
         override fun onPpgRedTrackerDataChanged(ppgRedData: PpgData) {
             runOnUiThread {
                 val dataToSave = SavePpgDataRequest(sessionId, ppgRedData.ppgValues)
-                println(dataToSave.ppgValues.size)
+                //println(dataToSave.ppgValues.size)
                 apiService.sendPpgRedData(dataToSave).enqueue(object : Callback<Void> {
                     override fun onResponse(call: Call<Void>, response: Response<Void>) {
-                        Log.i(appTAG, response.message())
+                        //Log.i(appTAG, response.message())
                     }
                     override fun onFailure(call: Call<Void>, t: Throwable) {
                         Log.e(appTAG, t.message.toString())
@@ -206,10 +209,29 @@ class MainActivity : Activity() {
         override fun onPpgIrTrackerDataChanged(ppgIrData: PpgData) {
             runOnUiThread {
                 val dataToSave = SavePpgDataRequest(sessionId, ppgIrData.ppgValues)
-                println(dataToSave.ppgValues.size)
+                //println(dataToSave.ppgValues.size)
                 apiService.sendPpgIrData(dataToSave).enqueue(object : Callback<Void> {
                     override fun onResponse(call: Call<Void>, response: Response<Void>) {
-                        Log.i(appTAG, response.message())
+                        //Log.i(appTAG, response.message())
+                    }
+                    override fun onFailure(call: Call<Void>, t: Throwable) {
+                        Log.e(appTAG, t.message.toString())
+                    }
+                })
+            }
+        }
+
+        // Skin Temperature tracker
+        override fun onSkinTemperatureTrackerDataChanged(skinTemperatureData: SkinTemperatureData) {
+            runOnUiThread {
+                val dataToSave = SaveSkinTemperatureDataRequest(sessionId,
+                    skinTemperatureData.objectTemperature,
+                    skinTemperatureData.ambientTemperature,
+                    skinTemperatureData.status)
+                //println(dataToSave)
+                apiService.sendSkinTemperatureData(dataToSave).enqueue(object : Callback<Void> {
+                    override fun onResponse(call: Call<Void>, response: Response<Void>) {
+                        //Log.i(appTAG, response.message())
                     }
                     override fun onFailure(call: Call<Void>, t: Throwable) {
                         Log.e(appTAG, t.message.toString())
@@ -254,6 +276,9 @@ class MainActivity : Activity() {
 
             ppgGreenListener = PpgGreenListener()
             connectionManager?.initPpgGreen(ppgGreenListener!!)
+
+            skinTemperatureListener = SkinTemperatureListener()
+            connectionManager?.initSkinTemperature(skinTemperatureListener!!)
         }
 
         override fun onError(e: HealthTrackerException) {
@@ -296,6 +321,7 @@ class MainActivity : Activity() {
         ppgGreenListener?.startTracker()
         ppgIrListener?.startTracker()
         ppgRedListener?.startTracker()
+        skinTemperatureListener?.startTracker()
 
         /// request session id (create new session)
         if (!sent) {
@@ -338,6 +364,7 @@ class MainActivity : Activity() {
         ppgGreenListener?.stopTracker()
         ppgIrListener?.stopTracker()
         ppgRedListener?.stopTracker()
+        skinTemperatureListener?.stopTracker()
 
         binding.butStart.isEnabled = true
         binding.butStop.isEnabled = false
@@ -360,6 +387,7 @@ class MainActivity : Activity() {
         ppgGreenListener?.stopTracker()
         ppgIrListener?.stopTracker()
         ppgRedListener?.stopTracker()
+        skinTemperatureListener?.stopTracker()
         val minutes = TimeUnit.MILLISECONDS.toMinutes(elapsedTime)
         val seconds = TimeUnit.MILLISECONDS.toSeconds(elapsedTime) % 60
         val timeString = String.format("%02d:%02d", minutes, seconds)

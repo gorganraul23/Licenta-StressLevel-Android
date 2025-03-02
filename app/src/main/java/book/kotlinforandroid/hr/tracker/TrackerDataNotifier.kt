@@ -2,6 +2,7 @@ package book.kotlinforandroid.hr.tracker
 
 import book.kotlinforandroid.hr.model.HeartRateData
 import book.kotlinforandroid.hr.model.PpgData
+import book.kotlinforandroid.hr.model.SkinTemperatureData
 import java.util.function.Consumer
 
 class TrackerDataNotifier private constructor() {
@@ -49,6 +50,12 @@ class TrackerDataNotifier private constructor() {
     fun notifyPpgIrTrackerObservers(ppgIrData: PpgData?) {
         observers.forEach(Consumer { observer: TrackerDataObserver ->
             observer.onPpgIrTrackerDataChanged(ppgIrData!!)
+        })
+    }
+
+    fun notifySkinTemperatureTrackerObservers(skinTemperatureData: SkinTemperatureData?) {
+        observers.forEach(Consumer { observer: TrackerDataObserver ->
+            observer.onSkinTemperatureTrackerDataChanged(skinTemperatureData!!)
         })
     }
 

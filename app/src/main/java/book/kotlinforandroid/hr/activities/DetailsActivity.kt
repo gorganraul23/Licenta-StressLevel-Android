@@ -14,6 +14,7 @@ import book.kotlinforandroid.hr.databinding.ActivityDetailsBinding
 import book.kotlinforandroid.hr.model.HeartRateData
 import book.kotlinforandroid.hr.model.HeartRateStatus
 import book.kotlinforandroid.hr.model.PpgData
+import book.kotlinforandroid.hr.model.SkinTemperatureData
 import book.kotlinforandroid.hr.tracker.TrackerDataNotifier
 import book.kotlinforandroid.hr.tracker.TrackerDataObserver
 
@@ -76,11 +77,12 @@ class DetailsActivity : Activity() {
             runOnUiThread {
                 if(heartRateData.ibiList.isNotEmpty()) {
                     heartRateData.ibiList.forEach { ibiValue ->
-                        Utils.updateIbiListWithInvalid(ibiValue)
+                        if(isIBINormal(ibiValue))
+                            Utils.updateIbiListWithInvalid(ibiValue)
                     } // stores all IBIs (valid + invalid)
 
                     heartRateData.ibiList.forEachIndexed { index, ibiValue ->
-                        if (heartRateData.qIbiList.getOrNull(index) == 0) {
+                        if (heartRateData.qIbiList.getOrNull(index) == 0 && isIBINormal(ibiValue)) {
                             Utils.updateIbiList(ibiValue)
                         }
                     }
@@ -98,6 +100,9 @@ class DetailsActivity : Activity() {
         }
 
         override fun onPpgIrTrackerDataChanged(ppgIrData: PpgData) {
+        }
+
+        override fun onSkinTemperatureTrackerDataChanged(skinTemperatureData: SkinTemperatureData) {
         }
 
         override fun onError(errorID: Int) {

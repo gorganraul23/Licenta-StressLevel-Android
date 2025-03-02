@@ -16,12 +16,10 @@ class PpgRedListener : BaseListener() {
     init {
         val trackerEventListener = object : HealthTracker.TrackerEventListener {
             override fun onDataReceived(list: List<DataPoint>) {
-                println(list.size)
                 for (dataPoint in list) {
                     val ppgValue = dataPoint.getValue(ValueKey.PpgRedSet.PPG_RED)
                     ppgValues.add(ppgValue)
                 }
-                println(ppgValues)
                 if (ppgValues.size >= 100) {
                     sendPPGData()
                 }

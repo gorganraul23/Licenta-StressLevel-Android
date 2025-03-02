@@ -4,6 +4,7 @@ import book.kotlinforandroid.hr.model.LoginResponse
 import book.kotlinforandroid.hr.model.PingResponse
 import book.kotlinforandroid.hr.model.SavePpgDataRequest
 import book.kotlinforandroid.hr.model.SaveSensorDataRequest
+import book.kotlinforandroid.hr.model.SaveSkinTemperatureDataRequest
 import book.kotlinforandroid.hr.model.SetReferenceRequest
 import book.kotlinforandroid.hr.model.StartSessionResponse
 import book.kotlinforandroid.hr.model.UserCredentials
@@ -36,6 +37,9 @@ interface ApiService {
 
     @POST("api/save-ppg-ir-data")
     fun sendPpgIrData(@Body ppgRedData: SavePpgDataRequest): Call<Void>
+
+    @POST("api/save-skin-temperature-data")
+    fun sendSkinTemperatureData(@Body skinTemperatureData: SaveSkinTemperatureDataRequest): Call<Void>
 
     @POST("users/login/")
     fun login(@Body credentials: UserCredentials): Call<LoginResponse>
