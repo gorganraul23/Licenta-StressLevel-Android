@@ -97,6 +97,9 @@ class DetailsActivity : Activity() {
         override fun onPpgRedTrackerDataChanged(ppgRedData: PpgData) {
         }
 
+        override fun onPpgIrTrackerDataChanged(ppgIrData: PpgData) {
+        }
+
         override fun onError(errorID: Int) {
             runOnUiThread {
                 Toast.makeText(applicationContext, getString(errorID), Toast.LENGTH_LONG).show()
